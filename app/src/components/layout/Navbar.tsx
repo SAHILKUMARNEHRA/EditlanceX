@@ -10,11 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Film, User, LogOut, LayoutDashboard } from 'lucide-react';
+import { Film, User, LogOut, LayoutDashboard, ShieldCheck } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+
+  const isAdmin = user?.role === 'admin' || user?.email === 'sk.nehra2005@gmail.com';
 
   const handleLogout = () => {
     logout();
@@ -72,6 +74,14 @@ const Navbar: React.FC = () => {
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="cursor-pointer text-rose-600 font-semibold">
+                          <ShieldCheck className="mr-2 h-4 w-4" />
+                          Admin Panel
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     {user?.role === 'editor' && (
                       <DropdownMenuItem asChild>
                         <Link to="/editor/profile" className="cursor-pointer">

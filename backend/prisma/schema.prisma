@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  editor
+  client
+}
+
+enum ApplicationStatus {
+  PENDING
+  HIRED
+  NOT_HIRED
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  phone         String?        // New: Exclusive contact info
+  password      String?        // Nullable for Google OAuth users
+  role          Role           @default(client)
+  googleId      String?        @unique
+  editorProfile EditorProfile?
+  jobs          Job[]          @relation("ClientJobs")
+  applications  Application[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model EditorProfile {
+  id             String   @id @default(uuid())
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String   @unique
+  bio            String?
+  skills         String[]
+  experience     String?
+  portfolioLinks String[]
+  availability   String?
+  experienceDetails String? // New field for detailed experience
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Job {
+  id           String        @id @default(uuid())
+  title        String
+  description  String
+  category     String?
+  videoType    String?       // New: Short video, Long video, etc.
+  software     String[]      // New: Premiere Pro, Final Cut Pro, etc.
+  budget       Float
+  deadline     DateTime
+  client       User          @relation("ClientJobs", fields: [createdBy], references: [id])
+  createdBy    String
+  applications Application[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Application {
+  id          String            @id @default(uuid())
+  job         Job               @relation(fields: [jobId], references: [id])
+  jobId       String
+  editor      User              @relation(fields: [editorId], references: [id])
+  editorId    String
+  status      ApplicationStatus @default(PENDING) // New: Tracking hiring status
+  isContacted Boolean           @default(false)   // New: Track if client clicked contact
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([jobId, editorId]) // One application per editor per job
+}

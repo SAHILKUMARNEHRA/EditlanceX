@@ -18,6 +18,9 @@ import ClientDashboard from '@/pages/client/Dashboard';
 import PostJob from '@/pages/client/PostJob';
 import EditorListing from '@/pages/client/EditorListing';
 
+// Admin Pages
+import AdminDashboard from '@/pages/AdminDashboard';
+
 function App() {
   return (
     <AuthProvider>
@@ -87,6 +90,18 @@ function App() {
               <ProtectedRoute allowedRoles={['client']}>
                 <Layout>
                   <EditorListing />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'client', 'editor']}>
+                <Layout>
+                  <AdminDashboard />
                 </Layout>
               </ProtectedRoute>
             }

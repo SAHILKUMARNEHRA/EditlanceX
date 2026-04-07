@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Briefcase, CheckCircle, Clock, IndianRupee, Calendar, ArrowRight, User } from 'lucide-react';
+import { Loader2, Briefcase, CheckCircle, Clock, IndianRupee, Calendar, ArrowRight, User, AlertCircle, PartyPopper, XCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -36,11 +37,24 @@ const EditorDashboard: React.FC = () => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [applying, setApplying] = useState(false);
   const [profileComplete, setProfileComplete] = useState(true);
+  const [hiringAlert, setHiringAlert] = useState<{ type: 'HIRED' | 'NOT_HIRED', jobTitle: string } | null>(null);
 
   useEffect(() => {
     fetchJobs();
     checkProfile();
   }, []);
+
+  useEffect(() => {
+    // Check for recent status changes in applied jobs
+    const hiredJob = appliedJobs.find(job => job.status === 'HIRED');
+    const rejectedJob = appliedJobs.find(job => job.status === 'NOT_HIRED');
+    
+    if (hiredJob) {
+      setHiringAlert({ type: 'HIRED', jobTitle: hiredJob.title });
+    } else if (rejectedJob) {
+      setHiringAlert({ type: 'NOT_HIRED', jobTitle: rejectedJob.title });
+    }
+  }, [appliedJobs]);
 
   const checkProfile = async () => {
     try {
@@ -132,6 +146,33 @@ const EditorDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Notifications */}
+        {hiringAlert && (
+          <Alert className={`mb-6 border-2 ${hiringAlert.type === 'HIRED' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+            {hiringAlert.type === 'HIRED' ? (
+              <PartyPopper className="h-5 w-5 text-green-600" />
+            ) : (
+              <XCircle className="h-5 w-5 text-red-600" />
+            )}
+            <AlertTitle className={`font-bold ${hiringAlert.type === 'HIRED' ? 'text-green-800' : 'text-red-800'}`}>
+              {hiringAlert.type === 'HIRED' ? 'Congratulations!' : 'Application Update'}
+            </AlertTitle>
+            <AlertDescription className={hiringAlert.type === 'HIRED' ? 'text-green-700' : 'text-red-700'}>
+              {hiringAlert.type === 'HIRED' 
+                ? `You have been hired for "${hiringAlert.jobTitle}"! The client will contact you soon.`
+                : `The application for "${hiringAlert.jobTitle}" was not successful this time. Keep applying!`}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="ml-4 h-auto p-0 underline hover:bg-transparent" 
+                onClick={() => setHiringAlert(null)}
+              >
+                Dismiss
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Profile Incomplete Banner */}
         {!profileComplete && (
           <div className="mb-8 bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-center justify-between">

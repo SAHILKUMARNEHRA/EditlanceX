@@ -5,7 +5,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'editor' | 'client';
+  role: 'editor' | 'client' | 'admin';
   avatar?: string;
 }
 
@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUser = async () => {
     try {
-      const data = await api.getCurrentUser();
+      const data = await api.getMe();
       setUser(data.user);
       setIsAuthenticated(true);
     } catch (error) {

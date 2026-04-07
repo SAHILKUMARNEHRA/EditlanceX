@@ -146,8 +146,16 @@ export const updateEditorProfile = async (profileData: {
 };
 
 // User APIs
-export const getCurrentUser = async () => {
+export const getMe = async () => {
   return fetchWithAuth('/users/me');
+};
+
+export const getAdminStats = async () => {
+  return fetchWithAuth('/admin/stats');
+};
+
+export const getAdminUsers = async () => {
+  return fetchWithAuth('/admin/users');
 };
 
 export default {
@@ -163,5 +171,7 @@ export default {
   getEditors,
   getEditorProfile,
   updateEditorProfile,
-  getCurrentUser,
+  getMe,
+  getAdminStats,
+  getAdminUsers,
 };

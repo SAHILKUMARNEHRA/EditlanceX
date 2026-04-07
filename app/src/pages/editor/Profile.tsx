@@ -10,7 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Plus, X, Camera, Briefcase, Link as LinkIcon, Clock, IndianRupee, Calendar, User } from 'lucide-react';
+import { Loader2, Plus, X, Camera, Briefcase, Link as LinkIcon, Clock, IndianRupee, Calendar, User, PartyPopper, XCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ProfileData {
@@ -36,6 +37,7 @@ const EditorProfile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [newPortfolioLink, setNewPortfolioLink] = useState('');
   const [validationError, setValidationError] = useState('');
+  const [hiringAlert, setHiringAlert] = useState<{ type: 'HIRED' | 'NOT_HIRED', jobTitle: string } | null>(null);
 
   const isSetupMode = new URLSearchParams(location.search).get('setup') === 'true';
 
@@ -61,6 +63,18 @@ const EditorProfile: React.FC = () => {
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    // Check for status updates
+    const hiredJob = appliedJobs.find(job => job.status === 'HIRED');
+    const rejectedJob = appliedJobs.find(job => job.status === 'NOT_HIRED');
+    
+    if (hiredJob) {
+      setHiringAlert({ type: 'HIRED', jobTitle: hiredJob.title });
+    } else if (rejectedJob) {
+      setHiringAlert({ type: 'NOT_HIRED', jobTitle: rejectedJob.title });
+    }
+  }, [appliedJobs]);
 
   const fetchProfile = async () => {
     try {
@@ -183,6 +197,33 @@ const EditorProfile: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Notifications */}
+        {hiringAlert && (
+          <Alert className={`mb-6 border-2 ${hiringAlert.type === 'HIRED' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+            {hiringAlert.type === 'HIRED' ? (
+              <PartyPopper className="h-5 w-5 text-green-600" />
+            ) : (
+              <XCircle className="h-5 w-5 text-red-600" />
+            )}
+            <AlertTitle className={`font-bold ${hiringAlert.type === 'HIRED' ? 'text-green-800' : 'text-red-800'}`}>
+              {hiringAlert.type === 'HIRED' ? 'Congratulations!' : 'Application Update'}
+            </AlertTitle>
+            <AlertDescription className={hiringAlert.type === 'HIRED' ? 'text-green-700' : 'text-red-700'}>
+              {hiringAlert.type === 'HIRED' 
+                ? `You have been hired for "${hiringAlert.jobTitle}"! The client will contact you soon.`
+                : `The application for "${hiringAlert.jobTitle}" was not successful this time. Keep applying!`}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="ml-4 h-auto p-0 underline hover:bg-transparent" 
+                onClick={() => setHiringAlert(null)}
+              >
+                Dismiss
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Setup Mode Banner */}
         {isSetupMode && (
           <div className="mb-6 bg-rose-50 border border-rose-200 p-4 rounded-lg flex items-start space-x-3">

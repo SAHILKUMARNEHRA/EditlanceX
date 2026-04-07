@@ -30,7 +30,15 @@ app.use('/api', userRoutes);
 
 // Health check
 app.get('/api', (req, res) => {
-  res.json({ message: 'EditlanceX API is running' });
+  res.json({ 
+    message: 'EditlanceX API is running',
+    status: 'healthy',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/', (req, res) => {
+  res.send('<h1>EditlanceX API is Live</h1><p>The API is accessible at <a href="/api">/api</a></p>');
 });
 
 // Error handling middleware

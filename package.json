@@ -1,0 +1,16 @@
+{
+  "name": "editlancex2.0",
+  "version": "1.0.0",
+  "description": "Video Editor Job Marketplace",
+  "scripts": {
+    "install:all": "npm install && cd app && npm install && cd ../backend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd app && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "cd app && npm run build",
+    "postinstall": "cd app && npm install && cd ../backend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

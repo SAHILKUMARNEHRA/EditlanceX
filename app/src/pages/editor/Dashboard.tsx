@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Briefcase, CheckCircle, Clock, IndianRupee, Calendar, ArrowRight, User, AlertCircle, PartyPopper, XCircle } from 'lucide-react';
+import { Loader2, Briefcase, CheckCircle, Clock, IndianRupee, Calendar, ArrowRight, User, PartyPopper, XCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';

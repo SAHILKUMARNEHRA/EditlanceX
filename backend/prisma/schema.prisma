@@ -29,6 +29,7 @@ model User {
   password      String?        // Nullable for Google OAuth users
   role          Role           @default(client)
   googleId      String?        @unique
+  lastLogin     DateTime?      // New: Track last login time
   editorProfile EditorProfile?
   jobs          Job[]          @relation("ClientJobs")
   applications  Application[]

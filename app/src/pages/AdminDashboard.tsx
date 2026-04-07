@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import * as api from '@/services/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Users, Briefcase, FileText, TrendingUp, Mail, ShieldAlert } from 'lucide-react';
+import { Loader2, Users, Briefcase, FileText, TrendingUp, Mail, ShieldAlert, Clock } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -134,6 +135,7 @@ const AdminDashboard: React.FC = () => {
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Phone</TableHead>
+                    <TableHead>Last Login</TableHead>
                     <TableHead>Joined</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -154,6 +156,16 @@ const AdminDashboard: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>{u.phone || 'N/A'}</TableCell>
+                      <TableCell>
+                        {u.lastLogin ? (
+                          <div className="flex items-center text-xs text-gray-600">
+                            <Clock className="h-3 w-3 mr-1 text-rose-400" />
+                            {new Date(u.lastLogin).toLocaleString()}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">Never logged in</span>
+                        )}
+                      </TableCell>
                       <TableCell>{new Date(u.createdAt).toLocaleDateString()}</TableCell>
                     </TableRow>
                   ))}

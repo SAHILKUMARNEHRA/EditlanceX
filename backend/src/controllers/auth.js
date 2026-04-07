@@ -58,6 +58,12 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // Update last login time
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() }
+    });
+
     const token = generateToken(user.id);
     res.json({ user, token });
   } catch (error) {
@@ -88,13 +94,17 @@ const googleLogin = async (req, res) => {
           name,
           googleId,
           role: role || 'client',
+          lastLogin: new Date(),
         },
       });
-    } else if (!user.googleId) {
-      // Link Google account if email already exists
+    } else {
+      // Link Google account if email already exists or just update last login
       user = await prisma.user.update({
         where: { email },
-        data: { googleId },
+        data: { 
+          googleId: user.googleId || googleId,
+          lastLogin: new Date()
+        },
       });
     }
 

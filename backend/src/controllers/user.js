@@ -56,6 +56,7 @@ const getAllUsers = async (req, res) => {
         email: true,
         role: true,
         phone: true,
+        lastLogin: true,
         createdAt: true
       }
     });

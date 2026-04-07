@@ -1,9 +1,14 @@
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Get the API URL and normalize it (remove trailing slash if present)
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
 // Helper function for API calls
 async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   const token = localStorage.getItem('token');
   
+  // Normalize endpoint (ensure it starts with /)
+  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${API_URL}${path}`;
+
   const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -13,15 +18,30 @@ async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   };
 
   try {
-    const response = await fetch(`${API}${endpoint}`, config);
-    const data = await response.json();
+    const response = await fetch(url, config);
+    
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    let data;
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      // Not JSON (e.g., HTML error page from the hosting provider)
+      const text = await response.text();
+      console.error('Non-JSON response from API:', text);
+      throw new Error(`Server returned a non-JSON response (${response.status}). The backend URL might be wrong or the server might be down.`);
+    }
     
     if (!response.ok) {
-      throw new Error(data.error || data.message || 'Something went wrong');
+      throw new Error(data.error || data.message || `Server error: ${response.status}`);
     }
     
     return data;
-  } catch (error) {
+  } catch (error: any) {
+    console.error(`API Call failed: ${url}`, error);
+    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+      throw new Error('Could not connect to the backend server. Please check your VITE_API_URL and ensure the backend is running and supports HTTPS.');
+    }
     throw error;
   }
 }

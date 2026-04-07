@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Plus, X, Camera, Briefcase, Link as LinkIcon, Clock, CheckCircle, IndianRupee, Calendar, User } from 'lucide-react';
+import { Loader2, Plus, X, Camera, Briefcase, Link as LinkIcon, Clock, IndianRupee, Calendar, User } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ProfileData {

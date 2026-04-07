@@ -6,10 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Briefcase, CheckCircle, Clock, IndianRupee, Calendar, ArrowRight } from 'lucide-react';
+import { Loader2, Briefcase, CheckCircle, Clock, IndianRupee, Calendar, ArrowRight, User } from 'lucide-react';
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { User, Eye } from 'lucide-react';
 
 interface Job {
   id: string;
@@ -35,7 +34,6 @@ const EditorDashboard: React.FC = () => {
   const [, setError] = useState('');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [isFetchingDetails, setIsFetchingDetails] = useState(false);
   const [applying, setApplying] = useState(false);
   const [profileComplete, setProfileComplete] = useState(true);
 
@@ -83,15 +81,12 @@ const EditorDashboard: React.FC = () => {
 
   const fetchJobDetails = async (jobId: string) => {
     try {
-      setIsFetchingDetails(true);
       const data = await api.getJobById(jobId);
       setSelectedJob(data);
       setDetailsDialogOpen(true);
     } catch (err: any) {
       console.error('Error fetching job details:', err);
       setError(err.message || 'Failed to fetch job details');
-    } finally {
-      setIsFetchingDetails(false);
     }
   };
 

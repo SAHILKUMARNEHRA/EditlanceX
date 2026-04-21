@@ -17,7 +17,7 @@ const Signup: React.FC = () => {
   const [role, setRole] = useState<'editor' | 'client'>('editor');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { register, googleLogin } = useAuth();
+  const { signup, googleLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,7 +26,7 @@ const Signup: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await register(name, email, password, role);
+      await signup(name, email, password, role, '');
       navigate(role === 'editor' ? '/editor/profile?setup=true' : '/');
     } catch (err: any) {
       setError(err.message || 'Failed to sign up. Please try again.');

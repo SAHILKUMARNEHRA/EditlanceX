@@ -1,13 +1,26 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import * as api from '@/services/api';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Search, Star, Briefcase, Filter, CheckCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, Search, Star, Filter, User, CheckCircle, Video } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 interface Editor {
   id: string;
@@ -20,9 +33,8 @@ interface Editor {
   requestStatus?: string;
 }
 
-const experienceLevels = ['All', 'Less than 1 year', '1-2 years', '3-5 years', '5+ years', '10+ years'];
-
 const EditorListing: React.FC = () => {
+  const { user } = useAuth();
   const [editors, setEditors] = useState<Editor[]>([]);
   const [filteredEditors, setFilteredEditors] = useState<Editor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,20 +45,21 @@ const EditorListing: React.FC = () => {
   const [hireDialogOpen, setHireDialogOpen] = useState(false);
   const [hiring, setHiring] = useState(false);
 
+  const experiences = ['All', 'Beginner', 'Intermediate', 'Expert'];
+
   useEffect(() => {
     fetchEditors();
   }, []);
 
   useEffect(() => {
     filterEditors();
-  }, [searchQuery, selectedExperience, editors]);
+  }, [editors, searchQuery, selectedExperience]);
 
   const fetchEditors = async () => {
     try {
       setIsLoading(true);
       const data = await api.getEditors();
       setEditors(data.editors || []);
-      setFilteredEditors(data.editors || []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch editors');
     } finally {
@@ -56,19 +69,17 @@ const EditorListing: React.FC = () => {
 
   const filterEditors = () => {
     let filtered = editors;
-
     if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (editor) =>
-          editor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          editor.skills.some((skill) => skill.toLowerCase().includes(searchQuery.toLowerCase()))
+        e => e.name.toLowerCase().includes(lowerQuery) || 
+             e.skills.some(s => s.toLowerCase().includes(lowerQuery)) ||
+             (e.bio && e.bio.toLowerCase().includes(lowerQuery))
       );
     }
-
     if (selectedExperience !== 'All') {
-      filtered = filtered.filter((editor) => editor.experience === selectedExperience);
+      filtered = filtered.filter(e => e.experience === selectedExperience);
     }
-
     setFilteredEditors(filtered);
   };
 
@@ -88,7 +99,6 @@ const EditorListing: React.FC = () => {
       setSelectedEditor(null);
     } catch (err: any) {
       console.error('Failed to send request:', err);
-      // Optional: show error toast here
     } finally {
       setHiring(false);
     }
@@ -96,50 +106,56 @@ const EditorListing: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#0A0A0A] py-8 animate-in fade-in duration-500 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 relative overflow-hidden mb-8 group animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
-          <div className="absolute -bottom-8 left-10 w-64 h-64 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
-          <div className="relative z-10">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-2">
-              Find Video <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-600">Editors</span>
-            </h1>
-            <p className="text-gray-600 text-lg">Browse talented editors and find the perfect match for your project</p>
+        
+        <div className="bg-[#111] rounded-3xl p-10 shadow-2xl border border-white/5 relative overflow-hidden mb-10 group animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
+          <div className="absolute -bottom-8 left-10 w-64 h-64 bg-pink-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="bg-gradient-to-tr from-rose-500 to-pink-500 p-3 rounded-2xl shadow-lg">
+              <Video className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">
+                Find Video <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-pink-500">Editors</span>
+              </h1>
+              <p className="text-gray-400 text-lg">Browse talented editors and find the perfect match for your project</p>
+            </div>
           </div>
         </div>
 
         {/* Filters */}
-        <Card className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row gap-4">
+        <Card className="mb-8 bg-[#111] border-white/5 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
                 <Input
-                  placeholder="Search by name or skill..."
+                  placeholder="Search editors by name or skills..."
+                  className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 h-12 rounded-xl"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
                 />
               </div>
-              <div className="w-full md:w-56">
+              <div className="w-full sm:w-64">
                 <Select value={selectedExperience} onValueChange={setSelectedExperience}>
-                  <SelectTrigger>
-                    <Filter className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder="Experience" />
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl">
+                    <div className="flex items-center">
+                      <Filter className="h-4 w-4 mr-2 text-gray-500" />
+                      <SelectValue placeholder="Experience Level" />
+                    </div>
                   </SelectTrigger>
-                  <SelectContent>
-                    {experienceLevels.map((level) => (
-                      <SelectItem key={level} value={level}>
-                        {level}
-                      </SelectItem>
+                  <SelectContent className="bg-[#111] border-white/10 text-white">
+                    {experiences.map(e => (
+                      <SelectItem key={e} value={e} className="focus:bg-white/10 focus:text-white">{e}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -148,173 +164,138 @@ const EditorListing: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Results Count */}
-        <div className="mb-4">
-          <p className="text-sm text-gray-600">
-            Showing {filteredEditors.length} {filteredEditors.length === 1 ? 'editor' : 'editors'}
-          </p>
-        </div>
-
-        {/* Editors Grid */}
-        {filteredEditors.length === 0 ? (
-          <Card className="p-12 text-center">
-            <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No editors found</h3>
-            <p className="text-gray-500">Try adjusting your search or filters</p>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredEditors.map((editor) => (
-              <Card key={editor.id} className="hover:shadow-lg transition-shadow duration-200">
-                <CardContent className="pt-6">
-                  <div className="flex items-start space-x-4">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage src={editor.avatar} alt={editor.name} />
-                      <AvatarFallback className="bg-rose-100 text-rose-600 text-xl">
-                        {editor.name.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">{editor.name}</h3>
-                      <div className="flex items-center text-sm text-gray-500 mt-1">
-                        <Briefcase className="h-4 w-4 mr-1 text-rose-500" />
-                        <span>{editor.experience}</span>
+        {/* Editor Grid */}
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+          {filteredEditors.length === 0 ? (
+            <Card className="p-16 text-center bg-[#111] border-white/5 border-dashed rounded-3xl">
+              <div className="bg-white/5 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="h-10 w-10 text-gray-600" />
+              </div>
+              <h3 className="text-xl font-medium text-white mb-2">No editors found</h3>
+              <p className="text-gray-500">Try adjusting your search criteria.</p>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredEditors.map((editor) => (
+                <Card key={editor.id} className="bg-[#111] border-white/5 hover:border-white/20 transition-all duration-300 group rounded-2xl overflow-hidden flex flex-col hover:-translate-y-1 hover:shadow-2xl hover:shadow-rose-500/10">
+                  <CardHeader className="pb-4 bg-white/[0.02] border-b border-white/5">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="h-14 w-14 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-xl font-bold text-white shadow-inner">
+                          {editor.name.charAt(0)}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-xl text-white group-hover:text-rose-400 transition-colors">{editor.name}</h3>
+                          <p className="text-sm text-gray-400 flex items-center mt-1">
+                            <Star className="h-3 w-3 mr-1 text-yellow-500 fill-yellow-500" />
+                            {editor.experience} Editor
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  {editor.bio && (
-                    <p className="text-sm text-gray-600 mt-4 line-clamp-2">{editor.bio}</p>
-                  )}
-
-                  <div className="mt-4">
-                    <div className="flex flex-wrap gap-2">
-                      {editor.skills.slice(0, 4).map((skill, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className="bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        >
-                          {skill}
-                        </Badge>
-                      ))}
-                      {editor.skills.length > 4 && (
-                        <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                          +{editor.skills.length - 4}
-                        </Badge>
-                      )}
+                  </CardHeader>
+                  <CardContent className="pt-6 pb-6 flex-1 flex flex-col">
+                    <div className="mb-6 flex-1">
+                      <p className="text-gray-400 text-sm line-clamp-3 leading-relaxed">
+                        {editor.bio || 'No bio provided.'}
+                      </p>
                     </div>
-                  </div>
-
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
-                        <span className="font-medium text-gray-700">{editor.availability}</span>
-                      </span>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedEditor(editor);
-                            setHireDialogOpen(true);
-                          }}
-                        >
-                          View Details
-                        </Button>
+                    
+                    <div className="mb-6">
+                      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Top Skills</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {editor.skills.slice(0, 3).map((skill, index) => (
+                          <Badge key={index} variant="secondary" className="bg-rose-500/10 text-rose-400 border-none">
+                            {skill}
+                          </Badge>
+                        ))}
+                        {editor.skills.length > 3 && (
+                          <Badge variant="secondary" className="bg-white/5 text-gray-400 border-none">
+                            +{editor.skills.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
+                      <div className="text-sm">
+                        <span className="text-gray-500 mr-2">Availability:</span>
+                        <span className="font-medium text-green-400">{editor.availability}</span>
+                      </div>
+                      {user && user.role === 'client' && (
                         <Button
                           onClick={() => {
                             setSelectedEditor(editor);
                             setHireDialogOpen(true);
                           }}
                           disabled={!!editor.requestStatus && editor.requestStatus !== 'NOT_HIRED'}
-                          className={
+                          className={`rounded-full h-10 px-6 font-semibold shadow-lg ${
                             editor.requestStatus === 'HIRED'
-                              ? 'bg-green-500 hover:bg-green-600'
+                              ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-600/20'
                               : editor.requestStatus === 'PENDING'
-                              ? 'bg-yellow-500 hover:bg-yellow-600'
-                              : 'bg-rose-500 hover:bg-rose-600'
-                          }
+                              ? 'bg-yellow-500 hover:bg-yellow-600 text-black shadow-yellow-500/20'
+                              : 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20'
+                          }`}
                           size="sm"
                         >
                           {editor.requestStatus === 'HIRED' ? (
                             <>
-                              <CheckCircle className="h-4 w-4 mr-1" />
+                              <CheckCircle className="h-4 w-4 mr-2" />
                               Hired
                             </>
                           ) : editor.requestStatus === 'PENDING' ? (
                             <>
-                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                               Requested
                             </>
                           ) : (
                             <>
-                              <Star className="h-4 w-4 mr-1" />
-                              Hire
+                              <User className="h-4 w-4 mr-2" />
+                              Hire Direct
                             </>
                           )}
                         </Button>
-                      </div>
+                      )}
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {/* Hire Dialog */}
-        <Dialog open={hireDialogOpen} onOpenChange={setHireDialogOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Hire Editor</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to hire this editor for your project?
-              </DialogDescription>
-            </DialogHeader>
-
-            {selectedEditor && (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={selectedEditor.avatar} alt={selectedEditor.name} />
-                    <AvatarFallback className="bg-rose-100 text-rose-600">
-                      {selectedEditor.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">{selectedEditor.name}</h4>
-                    <p className="text-sm text-gray-600">{selectedEditor.experience} experience</p>
-                  </div>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-1">
-                  {selectedEditor.skills.slice(0, 3).map((skill, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <DialogFooter className="flex gap-2">
-              <Button variant="outline" onClick={() => setHireDialogOpen(false)} disabled={hiring}>
-                Cancel
-              </Button>
-              <Button onClick={handleHire} disabled={hiring} className="bg-rose-500 hover:bg-rose-600">
-                {hiring ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  'Confirm Hire'
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Hire Modal */}
+      <Dialog open={hireDialogOpen} onOpenChange={setHireDialogOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-[#111] border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Direct Hire Request</DialogTitle>
+            <DialogDescription className="text-gray-400 mt-2">
+              Send a direct request to hire <strong className="text-white">{selectedEditor?.name}</strong>. They will be notified and can accept or decline your request.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-6 flex items-center justify-center">
+            <div className="h-24 w-24 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-3xl font-bold text-white shadow-inner mb-2">
+              {selectedEditor?.name.charAt(0)}
+            </div>
+          </div>
+          <DialogFooter className="flex flex-col sm:flex-row gap-3 border-t border-white/10 pt-6">
+            <Button variant="outline" onClick={() => setHireDialogOpen(false)} className="flex-1 border-white/20 text-white hover:bg-white/10 rounded-full h-12">
+              Cancel
+            </Button>
+            <Button onClick={handleHire} disabled={hiring} className="flex-1 bg-rose-600 hover:bg-rose-700 text-white rounded-full h-12 font-semibold">
+              {hiring ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                'Send Request'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

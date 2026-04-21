@@ -66,7 +66,7 @@ const Landing: React.FC = () => {
                     </Button>
                   </Link>
                   <Link to="/login">
-                    <Button size="lg" variant="outline" className="text-lg px-8 h-14 rounded-full border-white/20 text-white hover:bg-white/10 font-semibold transition-transform hover:scale-105">
+                    <Button size="lg" variant="outline" className="text-lg px-8 h-14 rounded-full border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white font-semibold transition-transform hover:scale-105">
                       Sign In
                     </Button>
                   </Link>
@@ -271,7 +271,7 @@ const Landing: React.FC = () => {
               </Button>
             </Link>
             <Link to="/login">
-              <Button size="lg" variant="outline" className="text-xl px-10 h-16 rounded-full border-white/20 text-white hover:bg-white/10 font-bold transition-transform hover:scale-105 backdrop-blur-sm">
+              <Button size="lg" variant="outline" className="text-xl px-10 h-16 rounded-full border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white font-bold transition-transform hover:scale-105 backdrop-blur-sm">
                 Sign In
               </Button>
             </Link>

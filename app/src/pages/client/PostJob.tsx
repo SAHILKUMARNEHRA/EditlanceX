@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, ArrowLeft, CheckCircle, PlusCircle } from 'lucide-react';
 
 const categories = [
   'Wedding',
@@ -62,35 +63,13 @@ const PostJob: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
-    if (!formData.title.trim()) {
-      setError('Title is required');
-      return;
-    }
-    if (!formData.description.trim()) {
-      setError('Description is required');
-      return;
-    }
-    if (!formData.category) {
-      setError('Category is required');
-      return;
-    }
-    if (!formData.videoType) {
-      setError('Video type is required');
-      return;
-    }
-    if (formData.software.length === 0) {
-      setError('Please select at least one software');
-      return;
-    }
-    if (!formData.budget || parseFloat(formData.budget) <= 0) {
-      setError('Valid budget is required');
-      return;
-    }
-    if (!formData.deadline) {
-      setError('Deadline is required');
-      return;
-    }
+    if (!formData.title.trim()) { setError('Title is required'); return; }
+    if (!formData.description.trim()) { setError('Description is required'); return; }
+    if (!formData.category) { setError('Category is required'); return; }
+    if (!formData.videoType) { setError('Video type is required'); return; }
+    if (formData.software.length === 0) { setError('Please select at least one software'); return; }
+    if (!formData.budget || parseFloat(formData.budget) <= 0) { setError('Valid budget is required'); return; }
+    if (!formData.deadline) { setError('Deadline is required'); return; }
 
     setIsSubmitting(true);
     setError('');
@@ -115,36 +94,29 @@ const PostJob: React.FC = () => {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="text-center p-8">
-            <div className="mb-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="h-8 w-8 text-green-500" />
+      <div className="min-h-screen bg-[#0A0A0A] py-8 flex items-center justify-center animate-in fade-in duration-500">
+        <div className="max-w-2xl w-full px-4 sm:px-6 lg:px-8">
+          <Card className="text-center p-12 bg-[#111] border-white/5 shadow-2xl rounded-3xl relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-full bg-green-500/5 mix-blend-screen pointer-events-none"></div>
+            <div className="mb-8 relative z-10">
+              <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(34,197,94,0.2)]">
+                <CheckCircle className="h-12 w-12 text-green-500" />
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Job Posted Successfully!</h2>
-            <p className="text-gray-600 mb-6">
-              Your job has been posted and is now visible to video editors. You'll start receiving applications soon.
+            <h2 className="text-3xl font-extrabold text-white mb-4 relative z-10">Job Posted Successfully!</h2>
+            <p className="text-gray-400 mb-10 text-lg relative z-10">
+              Your job has been posted and is now visible to top video editors. You'll start receiving applications soon.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button onClick={() => navigate('/client/dashboard')} variant="outline">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
+              <Button onClick={() => navigate('/client/dashboard')} variant="outline" className="border-white/20 text-white hover:bg-white/10 rounded-full h-12 px-8">
                 Go to Dashboard
               </Button>
               <Button
                 onClick={() => {
                   setIsSuccess(false);
-                  setFormData({
-                    title: '',
-                    description: '',
-                    category: '',
-                    videoType: '',
-                    software: [],
-                    budget: '',
-                    deadline: '',
-                  });
+                  setFormData({ title: '', description: '', category: '', videoType: '', software: [], budget: '', deadline: '' });
                 }}
-                className="bg-rose-500 hover:bg-rose-600"
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full h-12 px-8 font-semibold shadow-lg shadow-blue-600/20"
               >
                 Post Another Job
               </Button>
@@ -156,188 +128,162 @@ const PostJob: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-[#0A0A0A] py-8 animate-in fade-in duration-500 text-white">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        
         <div className="mb-8">
           <Button
             variant="ghost"
-            size="sm"
             onClick={() => navigate('/client/dashboard')}
-            className="mb-4"
+            className="mb-6 text-gray-400 hover:text-white hover:bg-white/10 rounded-full pl-2 pr-4"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Button>
-          <h1 className="text-3xl font-bold text-gray-900">Post a New Job</h1>
-          <p className="mt-2 text-gray-600">Fill in the details below to find the perfect video editor</p>
+          
+          <div className="bg-[#111] rounded-3xl p-10 shadow-2xl border border-white/5 relative overflow-hidden mb-8 group animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full mix-blend-screen filter blur-[100px] opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="bg-gradient-to-tr from-blue-500 to-purple-600 p-3 rounded-2xl shadow-lg">
+                <PlusCircle className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-1">
+                  Post a <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">New Job</span>
+                </h1>
+                <p className="text-gray-400 text-lg">Fill in the details below to find the perfect video editor</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Job Details</CardTitle>
-            <CardDescription>Provide clear information to attract the right editors</CardDescription>
+        {error && (
+          <div className="mb-6 bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-red-400 font-medium">
+            {error}
+          </div>
+        )}
+
+        <Card className="bg-[#111] border-white/5 rounded-3xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+          <CardHeader className="bg-white/[0.02] border-b border-white/5 pb-6">
+            <CardTitle className="text-xl text-white">Job Details</CardTitle>
+            <CardDescription className="text-gray-400">Provide clear information to attract the right editors</CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Title */}
-              <div className="space-y-2">
-                <Label htmlFor="title">
-                  Job Title <span className="text-red-500">*</span>
-                </Label>
+          <CardContent className="p-6 sm:p-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-3">
+                <Label htmlFor="title" className="text-gray-300 font-semibold">Job Title <span className="text-red-500">*</span></Label>
                 <Input
                   id="title"
                   placeholder="e.g., Wedding Video Editing - 30 minutes"
                   value={formData.title}
                   onChange={(e) => handleChange('title', e.target.value)}
                   disabled={isSubmitting}
+                  className="bg-white/5 border-white/10 text-white focus:border-blue-500/50 rounded-xl h-12"
                 />
               </div>
 
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description">
-                  Description <span className="text-red-500">*</span>
-                </Label>
+              <div className="space-y-3">
+                <Label htmlFor="description" className="text-gray-300 font-semibold">Description <span className="text-red-500">*</span></Label>
                 <Textarea
                   id="description"
                   placeholder="Describe your project, requirements, and what you're looking for in an editor..."
                   value={formData.description}
                   onChange={(e) => handleChange('description', e.target.value)}
-                  rows={5}
+                  rows={6}
                   disabled={isSubmitting}
+                  className="bg-white/5 border-white/10 text-white focus:border-blue-500/50 rounded-xl resize-y"
                 />
-                <p className="text-sm text-gray-500">
-                  Include details about footage length, style preferences, and deliverables
-                </p>
+                <p className="text-sm text-gray-500">Include details about footage length, style preferences, and deliverables</p>
               </div>
 
-              {/* Category */}
-              <div className="space-y-2">
-                <Label htmlFor="category">
-                  Category <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) => handleChange('category', value)}
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="category" className="text-gray-300 font-semibold">Category <span className="text-red-500">*</span></Label>
+                  <Select value={formData.category} onValueChange={(value) => handleChange('category', value)} disabled={isSubmitting}>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white rounded-xl h-12">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#111] border-white/10 text-white">
+                      {categories.map((cat) => (
+                        <SelectItem key={cat} value={cat} className="focus:bg-white/10 focus:text-white">{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="videoType" className="text-gray-300 font-semibold">Video Type <span className="text-red-500">*</span></Label>
+                  <Select value={formData.videoType} onValueChange={(value) => handleChange('videoType', value)} disabled={isSubmitting}>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white rounded-xl h-12">
+                      <SelectValue placeholder="Select a video type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#111] border-white/10 text-white">
+                      {videoTypes.map((type) => (
+                        <SelectItem key={type} value={type} className="focus:bg-white/10 focus:text-white">{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              {/* Video Type */}
-              <div className="space-y-2">
-                <Label htmlFor="videoType">
-                  Video Type <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={formData.videoType}
-                  onValueChange={(value) => handleChange('videoType', value)}
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a video type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {videoTypes.map((vt) => (
-                      <SelectItem key={vt} value={vt}>
-                        {vt}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Software Selection */}
               <div className="space-y-3">
-                <Label>
-                  Required Software <span className="text-red-500">*</span>
-                </Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {softwareList.map((sw) => (
-                    <div
-                      key={sw}
-                      onClick={() => !isSubmitting && toggleSoftware(sw)}
-                      className={`
-                        cursor-pointer px-4 py-2 rounded-md border text-sm text-center transition-all
-                        ${formData.software.includes(sw)
-                          ? 'bg-rose-50 border-rose-500 text-rose-700 font-medium shadow-sm'
-                          : 'bg-white border-gray-200 text-gray-600 hover:border-rose-300 hover:bg-rose-50/30'}
-                        ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
-                      `}
+                <Label className="text-gray-300 font-semibold">Required Software <span className="text-red-500">*</span></Label>
+                <div className="flex flex-wrap gap-2 p-4 bg-white/5 rounded-xl border border-white/5">
+                  {softwareList.map((software) => (
+                    <Badge
+                      key={software}
+                      variant={formData.software.includes(software) ? 'default' : 'outline'}
+                      className={`cursor-pointer px-4 py-1.5 text-sm ${
+                        formData.software.includes(software)
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white border-none'
+                          : 'bg-transparent border-white/20 text-gray-400 hover:text-white hover:border-white/40'
+                      }`}
+                      onClick={() => !isSubmitting && toggleSoftware(software)}
                     >
-                      {sw}
-                    </div>
+                      {software}
+                    </Badge>
                   ))}
                 </div>
               </div>
 
-              {/* Budget and Deadline */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="budget">
-                    Budget (₹) <span className="text-red-500">*</span>
-                  </Label>
+                <div className="space-y-3">
+                  <Label htmlFor="budget" className="text-gray-300 font-semibold">Budget (₹) <span className="text-red-500">*</span></Label>
                   <Input
                     id="budget"
                     type="number"
                     min="1"
-                    placeholder="e.g., 500"
+                    placeholder="e.g., 5000"
                     value={formData.budget}
                     onChange={(e) => handleChange('budget', e.target.value)}
                     disabled={isSubmitting}
+                    className="bg-white/5 border-white/10 text-white focus:border-blue-500/50 rounded-xl h-12"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="deadline">
-                    Deadline <span className="text-red-500">*</span>
-                  </Label>
+                <div className="space-y-3">
+                  <Label htmlFor="deadline" className="text-gray-300 font-semibold">Deadline <span className="text-red-500">*</span></Label>
                   <Input
                     id="deadline"
                     type="date"
+                    min={new Date().toISOString().split('T')[0]}
                     value={formData.deadline}
                     onChange={(e) => handleChange('deadline', e.target.value)}
                     disabled={isSubmitting}
-                    min={new Date().toISOString().split('T')[0]}
+                    className="bg-white/5 border-white/10 text-white focus:border-blue-500/50 rounded-xl h-12 [color-scheme:dark]"
                   />
                 </div>
               </div>
 
-              {/* Error */}
-              {error && (
-                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{error}</div>
-              )}
-
-              {/* Submit */}
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/client/dashboard')}
-                  disabled={isSubmitting}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 bg-rose-500 hover:bg-rose-600"
+              <div className="pt-6 border-t border-white/5 flex justify-end">
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting} 
+                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white rounded-full px-10 h-12 font-bold shadow-lg shadow-blue-600/20 text-lg transition-transform hover:scale-[1.02]"
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                       Posting...
                     </>
                   ) : (

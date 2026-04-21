@@ -6,11 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Loader2, Plus, X, Camera, Briefcase, Link as LinkIcon, Clock, IndianRupee, Calendar, User, PartyPopper, XCircle } from 'lucide-react';
+import { Loader2, Plus, X, Camera, Briefcase, Link as LinkIcon, User, PartyPopper, XCircle, ArrowLeft } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -65,7 +64,6 @@ const EditorProfile: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Check for status updates
     const hiredJob = appliedJobs.find(job => job.status === 'HIRED');
     const rejectedJob = appliedJobs.find(job => job.status === 'NOT_HIRED');
     
@@ -88,12 +86,10 @@ const EditorProfile: React.FC = () => {
       setFormData(profileData.profile);
       setAppliedJobs(appliedJobsData.jobs || []);
       
-      // If in setup mode and profile is empty, start editing automatically
       if (isSetupMode && (!profileData.profile.bio || profileData.profile.skills.length === 0)) {
         setIsEditing(true);
       }
     } catch (err: any) {
-      // Initialize with default values if no profile exists
       const defaultProfile = {
         name: user?.name || '',
         email: user?.email || '',
@@ -107,19 +103,13 @@ const EditorProfile: React.FC = () => {
       };
       setProfile(defaultProfile);
       setFormData(defaultProfile);
-      
-      if (isSetupMode) {
-        setIsEditing(true);
-      }
+      if (isSetupMode) setIsEditing(true);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSave = async () => {
-    setValidationError('');
-    
-    // Validation
     if (!formData.bio || formData.bio.trim().split(/\s+/).length < 20) {
       setValidationError('Please provide a bio with at least 20 words.');
       return;
@@ -136,93 +126,93 @@ const EditorProfile: React.FC = () => {
       setValidationError('Please select your availability.');
       return;
     }
-    if (formData.portfolioLinks.length === 0) {
-      setValidationError('Please add at least one portfolio link.');
-      return;
-    }
 
+    setValidationError('');
     setIsSaving(true);
+    
     try {
-      await api.updateEditorProfile(formData);
-      setProfile(formData);
+      const updatedProfile = await api.updateEditorProfile(formData);
+      setProfile(updatedProfile.profile);
       setIsEditing(false);
+      
       if (isSetupMode) {
         navigate('/editor/dashboard');
       }
     } catch (err: any) {
-      console.error('Error saving profile:', err);
-      // Fallback for user experience if API fails but we want to show updated state
-      setProfile(formData);
-      setIsEditing(false);
+      setValidationError(err.message || 'Failed to update profile');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const toggleSkill = (skill: string) => {
-    setFormData(prev => {
-      const current = [...prev.skills];
-      const index = current.indexOf(skill);
-      if (index > -1) {
-        current.splice(index, 1);
-      } else {
-        current.push(skill);
-      }
-      return { ...prev, skills: current };
-    });
-  };
-
   const addPortfolioLink = () => {
-    if (newPortfolioLink.trim() && !formData.portfolioLinks.includes(newPortfolioLink.trim())) {
-      setFormData({ ...formData, portfolioLinks: [...formData.portfolioLinks, newPortfolioLink.trim()] });
+    if (newPortfolioLink && !formData.portfolioLinks.includes(newPortfolioLink)) {
+      setFormData({
+        ...formData,
+        portfolioLinks: [...formData.portfolioLinks, newPortfolioLink]
+      });
       setNewPortfolioLink('');
     }
   };
 
-  const removePortfolioLink = (linkToRemove: string) => {
+  const removePortfolioLink = (link: string) => {
     setFormData({
       ...formData,
-      portfolioLinks: formData.portfolioLinks.filter((link) => link !== linkToRemove),
+      portfolioLinks: formData.portfolioLinks.filter(l => l !== link)
     });
+  };
+
+  const toggleSkill = (skill: string) => {
+    if (formData.skills.includes(skill)) {
+      setFormData({
+        ...formData,
+        skills: formData.skills.filter(s => s !== skill)
+      });
+    } else {
+      setFormData({
+        ...formData,
+        skills: [...formData.skills, skill]
+      });
+    }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-[#0A0A0A] py-8 animate-in fade-in duration-500 text-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Notifications */}
+        
         {hiringAlert && (
-          <Alert className={`mb-6 border-2 relative overflow-hidden ${hiringAlert.type === 'HIRED' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+          <Alert className={`mb-6 border border-white/10 relative overflow-hidden ${hiringAlert.type === 'HIRED' ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
             {hiringAlert.type === 'HIRED' && (
               <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
-                <PartyPopper className="h-32 w-32 -mt-4 -mr-4 text-green-600" />
+                <PartyPopper className="h-32 w-32 -mt-4 -mr-4 text-green-400" />
               </div>
             )}
             <div className="relative z-10 flex items-start gap-3">
               {hiringAlert.type === 'HIRED' ? (
-                <PartyPopper className="h-5 w-5 text-green-600 mt-0.5" />
+                <PartyPopper className="h-5 w-5 text-green-400 mt-0.5" />
               ) : (
-                <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                <XCircle className="h-5 w-5 text-red-400 mt-0.5" />
               )}
               <div>
-                <AlertTitle className={`font-bold ${hiringAlert.type === 'HIRED' ? 'text-green-800' : 'text-red-800'}`}>
+                <AlertTitle className={`font-bold ${hiringAlert.type === 'HIRED' ? 'text-green-300' : 'text-red-300'}`}>
                   {hiringAlert.type === 'HIRED' ? 'Congratulations!' : 'Application Update'}
                 </AlertTitle>
-                <AlertDescription className={hiringAlert.type === 'HIRED' ? 'text-green-700' : 'text-red-700'}>
+                <AlertDescription className="text-gray-300">
                   {hiringAlert.type === 'HIRED' 
                     ? `You have been hired for "${hiringAlert.jobTitle}"! The client will contact you soon.`
                     : `The application for "${hiringAlert.jobTitle}" was not successful this time. Keep applying!`}
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="ml-4 h-auto p-0 underline hover:bg-transparent" 
+                    className="ml-4 h-auto p-0 underline hover:bg-transparent text-gray-400 hover:text-white" 
                     onClick={() => setHiringAlert(null)}
                   >
                     Dismiss
@@ -233,351 +223,233 @@ const EditorProfile: React.FC = () => {
           </Alert>
         )}
 
-        {/* Setup Mode Banner */}
-        {isSetupMode && (
-          <div className="mb-6 bg-rose-50 border border-rose-200 p-4 rounded-lg flex items-start space-x-3">
-            <div className="bg-rose-100 p-2 rounded-full">
-              <User className="h-5 w-5 text-rose-600" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-rose-900">Welcome to EditlanceX!</h3>
-              <p className="text-sm text-rose-700">
-                To start applying for jobs, you must complete your profile. Please provide your bio, skills, experience, and portfolio links.
-              </p>
-            </div>
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex items-center">
+            <Button variant="ghost" onClick={() => navigate(-1)} className="mr-4 h-10 w-10 p-0 rounded-full text-gray-400 hover:text-white hover:bg-white/10">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-3xl font-bold text-white tracking-tight">Your Profile</h1>
           </div>
-        )}
+          {!isEditing && (
+            <Button onClick={() => setIsEditing(true)} className="bg-rose-600 hover:bg-rose-700 text-white rounded-full font-semibold">
+              Edit Profile
+            </Button>
+          )}
+        </div>
 
-        {/* Validation Error */}
         {validationError && (
-          <div className="mb-6 bg-red-50 border border-red-200 p-4 rounded-lg text-sm text-red-600">
+          <div className="mb-6 bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-red-400 font-medium">
             {validationError}
           </div>
         )}
 
-        {/* Header */}
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-            <p className="mt-2 text-gray-600">Manage your editor profile and portfolio</p>
-          </div>
-          <Button
-            onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-            disabled={isSaving}
-            className={isEditing ? 'bg-green-500 hover:bg-green-600' : 'bg-rose-500 hover:bg-rose-600'}
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : isEditing ? (
-              'Save Changes'
-            ) : (
-              'Edit Profile'
-            )}
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Profile Card */}
-          <Card className="lg:col-span-1">
-            <CardContent className="pt-6 text-center">
-              <div className="relative inline-block">
-                <Avatar className="h-32 w-32 mx-auto">
-                  <AvatarImage src={profile?.avatar} alt={profile?.name} />
-                  <AvatarFallback className="bg-rose-100 text-rose-600 text-4xl">
-                    {profile?.name?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                {isEditing && (
-                  <button className="absolute bottom-0 right-0 bg-rose-500 text-white p-2 rounded-full hover:bg-rose-600 transition-colors">
-                    <Camera className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-              
-              <h2 className="mt-4 text-xl font-semibold text-gray-900">{profile?.name}</h2>
-              <p className="text-sm text-gray-500">{profile?.email}</p>
-              
-              <div className="mt-4 flex items-center justify-center gap-2">
-                <Badge variant="secondary" className="bg-rose-50 text-rose-600">
-                  Video Editor
-                </Badge>
-              </div>
-
-              <Separator className="my-6" />
-
-              <div className="space-y-4 text-left">
-                <div className="flex items-center text-sm">
-                  <Briefcase className="h-4 w-4 mr-2 text-gray-400" />
-                  <span className="text-gray-600">{profile?.experience} experience</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Sidebar / Photo */}
+          <div className="md:col-span-1 space-y-6">
+            <Card className="bg-[#111] border-white/5 rounded-3xl overflow-hidden">
+              <CardContent className="p-8 text-center flex flex-col items-center">
+                <div className="relative mb-6">
+                  <Avatar className="h-32 w-32 border-4 border-white/10">
+                    <AvatarImage src={formData.avatar} alt={formData.name} />
+                    <AvatarFallback className="bg-gradient-to-br from-rose-500 to-purple-600 text-white text-4xl font-bold">
+                      {formData.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {isEditing && (
+                    <Button size="icon" className="absolute bottom-0 right-0 rounded-full bg-rose-600 hover:bg-rose-700 text-white border-4 border-[#111]">
+                      <Camera className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
-                <div className="flex items-center text-sm">
-                  <Clock className="h-4 w-4 mr-2 text-gray-400" />
-                  <span className="text-gray-600">{profile?.availability}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Details Card */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Profile Details</CardTitle>
-              <CardDescription>Your professional information and skills</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Bio */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700">Bio <span className="text-red-500">*</span></Label>
-                {isEditing ? (
-                  <Textarea
-                    value={formData.bio}
-                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                    className="mt-2"
-                    rows={4}
-                    placeholder="Tell clients about yourself..."
-                  />
-                ) : (
-                  <p className="mt-2 text-gray-600">{profile?.bio || 'No bio added yet'}</p>
-                )}
-              </div>
-
-              <Separator />
-
-              {/* Skills */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700">Skills <span className="text-red-500">*</span></Label>
-                {isEditing ? (
-                  <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {skillOptions.map((skill) => (
-                      <div
-                        key={skill}
-                        onClick={() => toggleSkill(skill)}
-                        className={`
-                          cursor-pointer px-3 py-2 rounded-md border text-xs text-center transition-all
-                          ${formData.skills.includes(skill)
-                            ? 'bg-rose-50 border-rose-500 text-rose-700 font-medium shadow-sm'
-                            : 'bg-white border-gray-200 text-gray-600 hover:border-rose-300 hover:bg-rose-50/30'}
-                        `}
-                      >
-                        {skill}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {profile?.skills?.length ? (
-                      profile.skills.map((skill, index) => (
-                        <Badge key={index} variant="secondary" className="bg-gray-100 text-gray-700">
-                          {skill}
-                        </Badge>
-                      ))
-                    ) : (
-                      <span className="text-gray-400">No skills added yet</span>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <Separator />
-
-              {/* Experience */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700">Experience <span className="text-red-500">*</span></Label>
-                {isEditing ? (
-                  <Select
-                    value={formData.experience}
-                    onValueChange={(value) => setFormData({ ...formData, experience: value })}
-                  >
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Select experience level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Less than 1 year">Less than 1 year</SelectItem>
-                      <SelectItem value="1-2 years">1-2 years</SelectItem>
-                      <SelectItem value="3-5 years">3-5 years</SelectItem>
-                      <SelectItem value="5+ years">5+ years</SelectItem>
-                      <SelectItem value="10+ years">10+ years</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <p className="mt-2 text-gray-600">{profile?.experience || 'Not specified'}</p>
-                )}
-              </div>
-
-              <Separator />
-
-              {/* Experience Details */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700">Detailed Experience</Label>
-                {isEditing ? (
-                  <Textarea
-                    className="mt-2"
-                    placeholder="Tell us more about your experience, past projects, and achievements..."
-                    value={formData.experienceDetails}
-                    onChange={(e) => setFormData({ ...formData, experienceDetails: e.target.value })}
-                    rows={4}
-                  />
-                ) : (
-                  <p className="mt-2 text-gray-600">
-                    {profile?.experienceDetails || 'No additional experience details provided.'}
-                  </p>
-                )}
-              </div>
-
-              <Separator />
-
-              {/* Availability */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700">Availability <span className="text-red-500">*</span></Label>
-                {isEditing ? (
-                  <Select
-                    value={formData.availability}
-                    onValueChange={(value) => setFormData({ ...formData, availability: value })}
-                  >
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Select availability" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Full-time">Full-time</SelectItem>
-                      <SelectItem value="Part-time">Part-time</SelectItem>
-                      <SelectItem value="Freelance">Freelance</SelectItem>
-                      <SelectItem value="Weekends only">Weekends only</SelectItem>
-                      <SelectItem value="Not available">Not available</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <p className="mt-2 text-gray-600">{profile?.availability || 'Not specified'}</p>
-                )}
-              </div>
-
-              <Separator />
-
-              {/* Portfolio Links */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700">Portfolio Links <span className="text-red-500">*</span></Label>
-                {isEditing ? (
-                  <div className="mt-2">
-                    <div className="space-y-2 mb-3">
-                      {formData.portfolioLinks.map((link, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between bg-gray-50 p-2 rounded"
-                        >
-                          <span className="text-sm text-gray-600 truncate">{link}</span>
-                          <button
-                            onClick={() => removePortfolioLink(link)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
+                <h2 className="text-2xl font-bold text-white mb-1">{formData.name}</h2>
+                <p className="text-gray-400 mb-4">{formData.email}</p>
+                
+                {!isEditing && (
+                  <div className="w-full space-y-3 pt-4 border-t border-white/10">
+                    <div className="flex items-center justify-center gap-2 text-sm text-gray-300">
+                      <Briefcase className="h-4 w-4 text-blue-400" />
+                      <span>{formData.experience} Editor</span>
                     </div>
-                    <div className="flex gap-2">
-                      <Input
-                        value={newPortfolioLink}
-                        onChange={(e) => setNewPortfolioLink(e.target.value)}
-                        placeholder="https://..."
-                        onKeyPress={(e) => e.key === 'Enter' && addPortfolioLink()}
-                      />
-                      <Button type="button" onClick={addPortfolioLink} variant="outline" size="icon">
-                        <Plus className="h-4 w-4" />
-                      </Button>
+                    <div className="flex items-center justify-center gap-2 text-sm text-gray-300">
+                      <Clock className="h-4 w-4 text-green-400" />
+                      <span>{formData.availability}</span>
                     </div>
                   </div>
-                ) : (
-                  <div className="mt-2 space-y-2">
-                    {profile?.portfolioLinks?.length ? (
-                      profile.portfolioLinks.map((link, index) => (
-                        <a
-                          key={index}
-                          href={link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-sm text-rose-500 hover:text-rose-600"
-                        >
-                          <LinkIcon className="h-4 w-4 mr-2" />
-                          {link}
-                        </a>
-                      ))
-                    ) : (
-                      <span className="text-gray-400">No portfolio links added yet</span>
-                    )}
-                  </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* My Jobs Section */}
-        <div className="mt-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">My Jobs</h2>
-            <Badge variant="secondary" className="bg-green-100 text-green-700">
-              {appliedJobs.length} Applications
-            </Badge>
-          </div>
-
-          {appliedJobs.length === 0 ? (
-            <Card className="p-12 text-center bg-gray-50/50 border-dashed">
-              <Briefcase className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No applications yet</h3>
-              <p className="text-gray-500 mb-6">Start applying to jobs to build your portfolio</p>
-              <Button onClick={() => navigate('/editor/jobs')} className="bg-rose-500 hover:bg-rose-600">
-                Browse Jobs
-              </Button>
+              </CardContent>
             </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {appliedJobs.map((job) => (
-                <Card key={job.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-semibold text-gray-900 line-clamp-1">{job.title}</h3>
-                      <Badge className="bg-green-100 text-green-700">Applied</Badge>
+          </div>
+
+          {/* Main Content */}
+          <div className="md:col-span-2 space-y-6">
+            <Card className="bg-[#111] border-white/5 rounded-3xl">
+              <CardHeader className="border-b border-white/5 bg-white/[0.02] pb-4">
+                <CardTitle className="text-xl text-white">About You</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                {isEditing ? (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="bio" className="text-gray-300">Professional Bio <span className="text-red-500">*</span></Label>
+                      <Textarea 
+                        id="bio" 
+                        placeholder="Tell clients about your editing style, niche, and what makes you unique. (Minimum 20 words)" 
+                        className="min-h-[150px] bg-white/5 border-white/10 text-white focus:border-rose-500/50 rounded-xl"
+                        value={formData.bio}
+                        onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                      />
+                      <p className="text-xs text-gray-500 text-right">
+                        {formData.bio.trim().split(/\s+/).filter(w => w.length > 0).length} / 20 words minimum
+                      </p>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-4">{job.description}</p>
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-green-600 font-medium">
-                        <IndianRupee className="h-4 w-4 mr-1 flex-shrink-0" />
-                        <span className="truncate" title={job.budget.toString()}>
-                          {new Intl.NumberFormat('en-IN', {
-                            style: 'currency',
-                            currency: 'INR',
-                            maximumFractionDigits: 0,
-                            notation: 'compact',
-                          }).format(job.budget)}
-                        </span>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label className="text-gray-300">Experience Level <span className="text-red-500">*</span></Label>
+                        <Select value={formData.experience} onValueChange={(val) => setFormData({...formData, experience: val})}>
+                          <SelectTrigger className="bg-white/5 border-white/10 text-white rounded-xl">
+                            <SelectValue placeholder="Select experience" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-[#111] border-white/10 text-white">
+                            <SelectItem value="Beginner" className="focus:bg-white/10">Beginner (0-2 years)</SelectItem>
+                            <SelectItem value="Intermediate" className="focus:bg-white/10">Intermediate (2-5 years)</SelectItem>
+                            <SelectItem value="Expert" className="focus:bg-white/10">Expert (5+ years)</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <div className="flex items-center text-gray-500">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {new Date(job.deadline).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
+
+                      <div className="space-y-2">
+                        <Label className="text-gray-300">Availability <span className="text-red-500">*</span></Label>
+                        <Select value={formData.availability} onValueChange={(val) => setFormData({...formData, availability: val})}>
+                          <SelectTrigger className="bg-white/5 border-white/10 text-white rounded-xl">
+                            <SelectValue placeholder="Select availability" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-[#111] border-white/10 text-white">
+                            <SelectItem value="Full-time" className="focus:bg-white/10">Full-time</SelectItem>
+                            <SelectItem value="Part-time" className="focus:bg-white/10">Part-time</SelectItem>
+                            <SelectItem value="Freelance" className="focus:bg-white/10">Freelance (Project based)</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-                    <div className="mt-4 pt-4 border-t flex justify-between items-center">
-                      <span className="text-xs text-gray-500">
-                        Status: <span className="font-semibold text-rose-500">{job.status || 'PENDING'}</span>
-                      </span>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-rose-500 p-0 h-auto hover:bg-transparent"
-                        onClick={() => navigate(`/editor/dashboard?jobId=${job.id}`)}
-                      >
-                        View Details
-                      </Button>
+
+                    <div className="space-y-2">
+                      <Label className="text-gray-300">Skills & Software <span className="text-red-500">*</span></Label>
+                      <div className="flex flex-wrap gap-2 mt-2 bg-white/5 p-4 rounded-xl border border-white/5">
+                        {skillOptions.map(skill => (
+                          <Badge 
+                            key={skill}
+                            variant={formData.skills.includes(skill) ? 'default' : 'outline'}
+                            className={`cursor-pointer px-3 py-1 text-sm ${
+                              formData.skills.includes(skill) 
+                                ? 'bg-rose-600 hover:bg-rose-700 border-none' 
+                                : 'bg-transparent border-white/20 text-gray-400 hover:text-white hover:border-white/40'
+                            }`}
+                            onClick={() => toggleSkill(skill)}
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+
+                    <div className="space-y-2">
+                      <Label className="text-gray-300">Portfolio Links</Label>
+                      <div className="flex gap-2">
+                        <Input 
+                          placeholder="https://youtube.com/..." 
+                          value={newPortfolioLink}
+                          onChange={(e) => setNewPortfolioLink(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addPortfolioLink())}
+                          className="bg-white/5 border-white/10 text-white rounded-xl"
+                        />
+                        <Button type="button" onClick={addPortfolioLink} className="bg-white/10 text-white hover:bg-white/20 rounded-xl px-6">
+                          Add
+                        </Button>
+                      </div>
+                      
+                      {formData.portfolioLinks.length > 0 && (
+                        <div className="flex flex-col gap-2 mt-4">
+                          {formData.portfolioLinks.map((link, i) => (
+                            <div key={i} className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
+                              <span className="text-sm text-blue-400 truncate flex-1 flex items-center">
+                                <LinkIcon className="h-3 w-3 mr-2 text-gray-500" />
+                                {link}
+                              </span>
+                              <Button variant="ghost" size="sm" onClick={() => removePortfolioLink(link)} className="h-8 w-8 p-0 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-full">
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Bio</h3>
+                      <p className="text-gray-300 leading-relaxed whitespace-pre-wrap bg-white/5 p-5 rounded-2xl border border-white/5">
+                        {profile?.bio || <span className="text-gray-600 italic">No bio provided. Click edit to add one.</span>}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Skills</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {profile?.skills && profile.skills.length > 0 ? (
+                          profile.skills.map(skill => (
+                            <Badge key={skill} className="bg-rose-500/10 text-rose-400 border-none px-3 py-1 text-sm">{skill}</Badge>
+                          ))
+                        ) : (
+                          <span className="text-gray-600 italic">No skills listed</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Portfolio</h3>
+                      {profile?.portfolioLinks && profile.portfolioLinks.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {profile.portfolioLinks.map((link, i) => (
+                            <a 
+                              key={i} 
+                              href={link} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="flex items-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all group"
+                            >
+                              <div className="bg-blue-500/20 p-2 rounded-lg mr-3 group-hover:bg-blue-500/30 transition-colors">
+                                <LinkIcon className="h-4 w-4 text-blue-400" />
+                              </div>
+                              <span className="text-sm text-gray-300 group-hover:text-white truncate">
+                                {link.replace(/^https?:\/\//, '')}
+                              </span>
+                            </a>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-gray-600 italic">No portfolio links added</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+              {isEditing && (
+                <div className="p-6 border-t border-white/5 bg-white/[0.02] flex justify-end gap-3 rounded-b-3xl">
+                  {!isSetupMode && (
+                    <Button variant="outline" onClick={() => { setIsEditing(false); setFormData(profile || formData); }} className="border-white/20 text-white hover:bg-white/10 rounded-full px-6">
+                      Cancel
+                    </Button>
+                  )}
+                  <Button onClick={handleSave} disabled={isSaving} className="bg-rose-600 hover:bg-rose-700 text-white rounded-full px-8 font-semibold shadow-lg shadow-rose-600/20">
+                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save Profile
+                  </Button>
+                </div>
+              )}
+            </Card>
+          </div>
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const editorRoutes = require('./routes/editor');
 const jobRoutes = require('./routes/job');
 const applicationRoutes = require('./routes/application');
+const requestRoutes = require('./routes/request');
 const userRoutes = require('./routes/user');
 
 const app = express();
@@ -25,6 +26,7 @@ app.use(morgan('dev'));
 app.use('/api/auth', authRoutes);
 app.use('/api', editorRoutes);
 app.use('/api', applicationRoutes);
+app.use('/api', requestRoutes);
 app.use('/api', jobRoutes);
 app.use('/api', userRoutes);
 

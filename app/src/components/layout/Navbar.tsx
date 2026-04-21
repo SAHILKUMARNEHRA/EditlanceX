@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Film, User, LogOut, LayoutDashboard, ShieldCheck } from 'lucide-react';
+import { Film, User, LogOut, LayoutDashboard, ShieldCheck, Bell } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -43,12 +43,26 @@ const Navbar: React.FC = () => {
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <>
+                <Link to="/requests">
+                  <Button variant="ghost" size="sm" className="hidden sm:flex text-gray-600 hover:text-gray-900">
+                    <Bell className="h-4 w-4 mr-2" />
+                    Requests
+                  </Button>
+                </Link>
                 <Link to={getDashboardLink()}>
                   <Button variant="ghost" size="sm" className="hidden sm:flex">
                     <LayoutDashboard className="h-4 w-4 mr-2" />
                     Dashboard
                   </Button>
                 </Link>
+                {isAdmin && (
+                  <Link to="/admin">
+                    <Button variant="outline" size="sm" className="hidden sm:flex border-rose-200 text-rose-600 hover:bg-rose-50">
+                      <ShieldCheck className="h-4 w-4 mr-2" />
+                      Admin Panel
+                    </Button>
+                  </Link>
+                )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -68,6 +82,12 @@ const Navbar: React.FC = () => {
                       </div>
                     </div>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/requests" className="cursor-pointer sm:hidden">
+                        <Bell className="mr-2 h-4 w-4" />
+                        Requests
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to={getDashboardLink()} className="cursor-pointer">
                         <LayoutDashboard className="mr-2 h-4 w-4" />

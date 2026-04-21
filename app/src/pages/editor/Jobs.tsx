@@ -257,11 +257,6 @@ const EditorJobs: React.FC = () => {
                   </div>
 
                   <div className="flex gap-2 items-center flex-wrap">
-                    {job.applied && job.applicationStatus && (
-                      <Badge className={job.applicationStatus === 'HIRED' ? 'bg-green-600' : job.applicationStatus === 'PENDING' ? 'bg-yellow-500' : 'bg-red-500'}>
-                        {job.applicationStatus}
-                      </Badge>
-                    )}
                     <Button
                       variant="outline"
                       onClick={() => fetchJobDetails(job.id)}
@@ -273,27 +268,26 @@ const EditorJobs: React.FC = () => {
                         'View Details'
                       )}
                     </Button>
-                    {!job.applied && (
-                      <Button
-                        onClick={() => {
-                          setSelectedJob(job);
-                          setDetailsDialogOpen(true);
-                        }}
-                        disabled={!profileComplete}
-                        className={`flex-1 ${!profileComplete ? 'bg-gray-300' : 'bg-rose-500 hover:bg-rose-600'}`}
-                      >
-                        Apply Now
-                      </Button>
-                    )}
-                    {job.applied && (
-                      <Button
-                        disabled
-                        className="flex-1 bg-green-500 hover:bg-green-500 cursor-default"
-                      >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Applied
-                      </Button>
-                    )}
+                    <Button
+                      onClick={() => {
+                        setSelectedJob(job);
+                        setDetailsDialogOpen(true);
+                      }}
+                      disabled={!profileComplete || (job.applied && job.applicationStatus !== 'NOT_HIRED')}
+                      className={`flex-1 ${!profileComplete || (job.applied && job.applicationStatus !== 'NOT_HIRED') ? 'bg-gray-300' : 'bg-rose-500 hover:bg-rose-600'}`}
+                    >
+                      {job.applied ? (
+                        job.applicationStatus === 'HIRED' ? (
+                          <><CheckCircle className="h-4 w-4 mr-2" /> Hired</>
+                        ) : job.applicationStatus === 'NOT_HIRED' ? (
+                          'Apply Again'
+                        ) : (
+                          'Pending'
+                        )
+                      ) : (
+                        'Apply Now'
+                      )}
+                    </Button>
                   </div>
                 </div>
               </Card>

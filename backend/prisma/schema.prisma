@@ -33,6 +33,8 @@ model User {
   editorProfile EditorProfile?
   jobs          Job[]          @relation("ClientJobs")
   applications  Application[]
+  sentRequests     DirectRequest[] @relation("ClientRequests")
+  receivedRequests DirectRequest[] @relation("EditorRequests")
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -82,4 +84,15 @@ model Application {
   updatedAt   DateTime          @updatedAt
 
   @@unique([jobId, editorId]) // One application per editor per job
+}
+
+model DirectRequest {
+  id          String            @id @default(uuid())
+  client      User              @relation("ClientRequests", fields: [clientId], references: [id])
+  clientId    String
+  editor      User              @relation("EditorRequests", fields: [editorId], references: [id])
+  editorId    String
+  status      ApplicationStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }

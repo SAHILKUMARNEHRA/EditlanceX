@@ -298,11 +298,6 @@ const EditorDashboard: React.FC = () => {
                           {job.clientName}
                         </span>
                         <div className="flex gap-2 items-center">
-                          {job.applied && job.applicationStatus && (
-                            <Badge className={job.applicationStatus === 'HIRED' ? 'bg-green-600' : job.applicationStatus === 'PENDING' ? 'bg-yellow-500' : 'bg-red-500'}>
-                              {job.applicationStatus}
-                            </Badge>
-                          )}
                           <Button 
                             variant="ghost" 
                             size="sm" 
@@ -313,14 +308,17 @@ const EditorDashboard: React.FC = () => {
                           </Button>
                           <Button
                             size="sm"
-                            disabled={!profileComplete || job.applied}
-                            className={`${(!profileComplete || job.applied) ? 'bg-gray-300' : 'bg-rose-500 hover:bg-rose-600'} h-8 text-xs`}
+                            disabled={!profileComplete || (job.applied && job.applicationStatus !== 'NOT_HIRED')}
+                            className={`${!profileComplete || (job.applied && job.applicationStatus !== 'NOT_HIRED') ? 'bg-gray-300' : 'bg-rose-500 hover:bg-rose-600'} h-8 text-xs`}
                             onClick={() => {
                               setSelectedJob(job);
                               setDetailsDialogOpen(true);
                             }}
                           >
-                            {job.applied ? 'Applied' : 'Apply'}
+                            {job.applied ? (
+                              job.applicationStatus === 'HIRED' ? 'Hired' :
+                              job.applicationStatus === 'NOT_HIRED' ? 'Apply Again' : 'Pending'
+                            ) : 'Apply'}
                           </Button>
                         </div>
                       </div>
@@ -351,12 +349,14 @@ const EditorDashboard: React.FC = () => {
                       <div className="flex justify-between items-start">
                         <h3 className="font-semibold text-gray-900 line-clamp-1">{job.title}</h3>
                         <div className="flex flex-col items-end gap-1">
-                          <Badge className="bg-green-100 text-green-700">Applied</Badge>
-                          {job.status && (
-                            <Badge className={job.status === 'HIRED' ? 'bg-green-600' : job.status === 'PENDING' ? 'bg-yellow-500' : 'bg-red-500'}>
-                              {job.status}
-                            </Badge>
-                          )}
+                          <Button
+                            size="sm"
+                            disabled={job.status !== 'NOT_HIRED'}
+                            className={`${job.status !== 'NOT_HIRED' ? 'bg-gray-300' : 'bg-rose-500 hover:bg-rose-600'} h-6 text-xs px-2`}
+                          >
+                            {job.status === 'HIRED' ? 'Hired' :
+                             job.status === 'NOT_HIRED' ? 'Declined' : 'Pending'}
+                          </Button>
                         </div>
                       </div>
                     </CardHeader>

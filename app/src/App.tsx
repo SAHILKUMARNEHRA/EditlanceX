@@ -20,6 +20,7 @@ import EditorListing from '@/pages/client/EditorListing';
 
 // Admin Pages
 import AdminDashboard from '@/pages/AdminDashboard';
+import Requests from '@/pages/Requests';
 
 import { useAuth } from '@/context/AuthContext';
 
@@ -41,6 +42,18 @@ function App() {
           <Route path="/" element={<Layout><HomeRedirect /></Layout>} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+
+          {/* Shared Authenticated Routes */}
+          <Route
+            path="/requests"
+            element={
+              <ProtectedRoute allowedRoles={['client', 'editor']}>
+                <Layout>
+                  <Requests />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
 
           {/* Editor Routes */}
           <Route

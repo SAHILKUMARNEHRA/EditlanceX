@@ -21,6 +21,14 @@ const applyForJob = async (req, res) => {
     });
 
     if (existingApplication) {
+      if (existingApplication.status === 'NOT_HIRED') {
+        // Re-apply by setting status back to PENDING
+        const updatedApp = await prisma.application.update({
+          where: { id: existingApplication.id },
+          data: { status: 'PENDING' }
+        });
+        return res.status(200).json(updatedApp);
+      }
       return res.status(400).json({ error: 'You have already applied for this job' });
     }
 

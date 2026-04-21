@@ -177,6 +177,29 @@ export const deleteJob = async (id: string) => {
   return fetchWithAuth(`/admin/jobs/${id}`, { method: 'DELETE' });
 };
 
+// Requests APIs
+export const sendDirectRequest = async (editorId: string) => {
+  return fetchWithAuth('/requests/direct', {
+    method: 'POST',
+    body: JSON.stringify({ editorId })
+  });
+};
+
+export const getClientRequests = async () => {
+  return fetchWithAuth('/requests/client');
+};
+
+export const getEditorRequests = async () => {
+  return fetchWithAuth('/requests/editor');
+};
+
+export const respondToRequest = async (id: string, status: 'HIRED' | 'NOT_HIRED') => {
+  return fetchWithAuth(`/requests/direct/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ status })
+  });
+};
+
 export default {
   login,
   signup,

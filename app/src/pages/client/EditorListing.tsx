@@ -17,6 +17,7 @@ interface Editor {
   experience: string;
   bio?: string;
   availability: string;
+  requestStatus?: string;
 }
 
 const experienceLevels = ['All', 'Less than 1 year', '1-2 years', '3-5 years', '5+ years', '10+ years'];
@@ -76,13 +77,22 @@ const EditorListing: React.FC = () => {
     if (!selectedEditor) return;
 
     setHiring(true);
-    // Simulate API call
-    setTimeout(() => {
-      setHiredEditors([...hiredEditors, selectedEditor.id]);
+    try {
+      await api.sendDirectRequest(selectedEditor.id);
+      
+      // Update local state
+      setEditors(editors.map(ed => 
+        ed.id === selectedEditor.id ? { ...ed, requestStatus: 'PENDING' } : ed
+      ));
+      
       setHireDialogOpen(false);
       setSelectedEditor(null);
+    } catch (err: any) {
+      console.error('Failed to send request:', err);
+      // Optional: show error toast here
+    } finally {
       setHiring(false);
-    }, 1000);
+    }
   };
 
   if (isLoading) {
@@ -213,18 +223,25 @@ const EditorListing: React.FC = () => {
                             setSelectedEditor(editor);
                             setHireDialogOpen(true);
                           }}
-                          disabled={hiredEditors.includes(editor.id)}
+                          disabled={!!editor.requestStatus && editor.requestStatus !== 'NOT_HIRED'}
                           className={
-                            hiredEditors.includes(editor.id)
-                              ? 'bg-green-500 hover:bg-green-500 cursor-default'
+                            editor.requestStatus === 'HIRED'
+                              ? 'bg-green-500 hover:bg-green-600'
+                              : editor.requestStatus === 'PENDING'
+                              ? 'bg-yellow-500 hover:bg-yellow-600'
                               : 'bg-rose-500 hover:bg-rose-600'
                           }
                           size="sm"
                         >
-                          {hiredEditors.includes(editor.id) ? (
+                          {editor.requestStatus === 'HIRED' ? (
                             <>
                               <CheckCircle className="h-4 w-4 mr-1" />
                               Hired
+                            </>
+                          ) : editor.requestStatus === 'PENDING' ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                              Requested
                             </>
                           ) : (
                             <>

@@ -488,11 +488,6 @@ const ClientDashboard: React.FC = () => {
                     <Badge variant="outline" className="bg-white">
                       {selectedApplication.editor.profile?.availability || 'Available'}
                     </Badge>
-                    {selectedApplication.status !== 'PENDING' && (
-                      <Badge className={selectedApplication.status === 'HIRED' ? 'bg-green-500' : 'bg-red-500'}>
-                        {selectedApplication.status}
-                      </Badge>
-                    )}
                   </div>
                 </div>
               </div>
@@ -590,7 +585,8 @@ const ClientDashboard: React.FC = () => {
                   disabled={isUpdatingStatus || selectedApplication.status === 'HIRED'}
                   className="bg-green-600 hover:bg-green-700 flex-1 sm:flex-none"
                 >
-                  {isUpdatingStatus ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Hired'}
+                  {isUpdatingStatus ? <Loader2 className="h-4 w-4 animate-spin" /> : 
+                   selectedApplication.status === 'HIRED' ? 'Hired' : 'Hire Editor'}
                 </Button>
                 <Button 
                   onClick={() => handleUpdateStatus('NOT_HIRED')}
@@ -598,7 +594,7 @@ const ClientDashboard: React.FC = () => {
                   variant="destructive"
                   className="flex-1 sm:flex-none"
                 >
-                  Not Hired
+                  {selectedApplication.status === 'NOT_HIRED' ? 'Declined' : 'Decline'}
                 </Button>
               </div>
             )}

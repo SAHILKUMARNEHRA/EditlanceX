@@ -2,6 +2,8 @@ const prisma = require('../config/prisma');
 
 const getEditors = async (req, res) => {
   try {
+    const userId = req.user?.id;
+
     const editors = await prisma.user.findMany({
       where: { role: 'editor' },
       select: {
@@ -10,6 +12,9 @@ const getEditors = async (req, res) => {
         email: true,
         role: true,
         editorProfile: true,
+        receivedRequests: userId ? {
+          where: { clientId: userId }
+        } : false
       },
     });
 
@@ -22,10 +27,14 @@ const getEditors = async (req, res) => {
       bio: editor.editorProfile?.bio || '',
       availability: editor.editorProfile?.availability || 'Unknown',
       experienceDetails: editor.editorProfile?.experienceDetails || '',
+      requestStatus: editor.receivedRequests && editor.receivedRequests.length > 0 
+        ? editor.receivedRequests[0].status 
+        : null
     }));
 
     res.json({ editors: formattedEditors });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error fetching editors' });
   }
 };

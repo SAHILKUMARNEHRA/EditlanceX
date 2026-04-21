@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Search, IndianRupee, Calendar, User, CheckCircle, Filter } from 'lucide-react';
+import { Loader2, Search, Calendar, User, CheckCircle, Filter } from 'lucide-react';
 
 interface Job {
   id: string;

@@ -92,10 +92,10 @@ const ClientDashboard: React.FC = () => {
   };
 
   const formatBudget = (budget: number) => {
-    return new Intl.NumberFormat('en-IN', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 1,
       notation: 'compact',
       compactDisplay: 'short'
     }).format(budget);
@@ -129,12 +129,19 @@ const ClientDashboard: React.FC = () => {
                 Manage your job postings and find the perfect editor.
               </p>
             </div>
-            <Link to="/client/post-job">
-              <Button className="bg-white text-black hover:bg-gray-200 px-8 h-14 rounded-full text-lg font-semibold transition-transform hover:scale-105 shadow-lg shadow-white/10">
-                <Plus className="mr-2 h-5 w-5" />
-                Post New Job
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link to="/client/editors">
+                <Button variant="outline" className="w-full sm:w-auto border-white/20 text-white hover:bg-white/10 px-8 h-14 rounded-full text-lg font-semibold transition-transform hover:scale-105 backdrop-blur-sm">
+                  Browse Editors
+                </Button>
+              </Link>
+              <Link to="/client/post-job">
+                <Button className="w-full sm:w-auto bg-white text-black hover:bg-gray-200 px-8 h-14 rounded-full text-lg font-semibold transition-transform hover:scale-105 shadow-lg shadow-white/10">
+                  <Plus className="mr-2 h-5 w-5" />
+                  Post New Job
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -187,7 +194,7 @@ const ClientDashboard: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 gap-6">
               {jobs.map((job) => (
-                <Card key={job.id} className="bg-[#111] border-white/5 hover:border-white/20 transition-all duration-300 group overflow-hidden">
+                <Card key={job.id} className="bg-[#111] border-white/5 hover:border-blue-500/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(59,130,246,0.15)] group overflow-hidden rounded-2xl">
                   <div className="flex flex-col md:flex-row">
                     <div className="p-6 flex-1">
                       <div className="flex justify-between items-start mb-4">
@@ -235,9 +242,36 @@ const ClientDashboard: React.FC = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-[#111] border-white/10 text-white">
-                          <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer">Edit Job</DropdownMenuItem>
-                          <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer">Close Job</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400 cursor-pointer">Delete Job</DropdownMenuItem>
+                          {job.status === 'OPEN' && (
+                            <DropdownMenuItem 
+                              className="focus:bg-white/10 focus:text-white cursor-pointer"
+                              onClick={async () => {
+                                try {
+                                  await api.updateJobStatus(job.id, 'CLOSED');
+                                  fetchJobs();
+                                } catch (err) {
+                                  console.error('Failed to close job');
+                                }
+                              }}
+                            >
+                              Close Job
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem 
+                            className="text-red-400 focus:bg-red-500/10 focus:text-red-400 cursor-pointer"
+                            onClick={async () => {
+                                if (window.confirm('Are you sure you want to delete this job?')) {
+                                  try {
+                                    await api.deleteJob(job.id);
+                                    fetchJobs();
+                                  } catch (err) {
+                                    console.error('Failed to delete job');
+                                  }
+                                }
+                            }}
+                          >
+                            Delete Job
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>

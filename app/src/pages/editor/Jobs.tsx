@@ -88,8 +88,19 @@ const EditorJobs: React.FC = () => {
     if (selectedCategory !== 'All') {
       filtered = filtered.filter(j => j.category === selectedCategory);
     }
+
+    filtered.sort((a, b) => {
+      const isAExpired = new Date(a.deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
+      const isBExpired = new Date(b.deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
+      if (isAExpired && !isBExpired) return 1;
+      if (!isAExpired && isBExpired) return -1;
+      return 0;
+    });
+
     setFilteredJobs(filtered);
   };
+
+  const isExpired = (deadline: string) => new Date(deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
 
   const fetchJobDetails = async (jobId: string) => {
     try {
@@ -123,10 +134,10 @@ const EditorJobs: React.FC = () => {
   };
 
   const formatBudget = (budget: number) => {
-    return new Intl.NumberFormat('en-IN', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 1,
       notation: 'compact',
       compactDisplay: 'short'
     }).format(budget);
@@ -228,7 +239,7 @@ const EditorJobs: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredJobs.map((job) => (
-                  <Card key={job.id} className="bg-[#111] border-white/5 hover:border-rose-500/30 hover:shadow-2xl hover:shadow-rose-500/5 transition-all duration-300 flex flex-col group rounded-2xl overflow-hidden">
+                  <Card key={job.id} className="bg-[#111] border-white/5 hover:border-rose-500/30 hover:shadow-[0_20px_50px_rgba(225,29,72,0.15)] transition-all duration-500 hover:-translate-y-2 flex flex-col group rounded-2xl overflow-hidden">
                     <CardHeader className="pb-3 border-b border-white/5 bg-white/[0.02]">
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-bold text-xl text-white line-clamp-1 group-hover:text-rose-400 transition-colors">{job.title}</h3>
@@ -253,9 +264,9 @@ const EditorJobs: React.FC = () => {
                         </div>
                         <div className="bg-white/5 p-3 rounded-xl border border-white/5">
                           <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider font-semibold">Deadline</p>
-                          <div className="flex items-center text-white">
-                            <Calendar className="h-4 w-4 mr-1 text-blue-400" />
-                            <span className="font-medium text-sm">{new Date(job.deadline).toLocaleDateString()}</span>
+                          <div className={`flex items-center ${isExpired(job.deadline) ? 'text-red-400' : 'text-white'}`}>
+                            <Calendar className={`h-4 w-4 mr-1 ${isExpired(job.deadline) ? 'text-red-400' : 'text-blue-400'}`} />
+                            <span className="font-medium text-sm">{isExpired(job.deadline) ? 'Deadline Crossed' : new Date(job.deadline).toLocaleDateString()}</span>
                           </div>
                         </div>
                       </div>
@@ -277,10 +288,12 @@ const EditorJobs: React.FC = () => {
                             setSelectedJob(job);
                             setDetailsDialogOpen(true);
                           }}
-                          disabled={!profileComplete || (job.applied && job.applicationStatus !== 'NOT_HIRED')}
-                          className={`flex-1 rounded-full font-semibold ${!profileComplete || (job.applied && job.applicationStatus !== 'NOT_HIRED') ? 'bg-white/10 text-white hover:bg-white/10 cursor-default' : 'bg-rose-600 hover:bg-rose-700 text-white'} ${job.applied && job.applicationStatus === 'HIRED' ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
+                          disabled={isExpired(job.deadline) || !profileComplete || (job.applied && job.applicationStatus !== 'NOT_HIRED')}
+                          className={`flex-1 rounded-full font-semibold ${isExpired(job.deadline) || !profileComplete || (job.applied && job.applicationStatus !== 'NOT_HIRED') ? 'bg-white/10 text-gray-400 hover:bg-white/10 cursor-default' : 'bg-rose-600 hover:bg-rose-700 text-white'} ${job.applied && job.applicationStatus === 'HIRED' ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
                         >
-                          {job.applied ? (
+                          {isExpired(job.deadline) ? (
+                            'Not Available'
+                          ) : job.applied ? (
                             job.applicationStatus === 'HIRED' ? (
                               <><CheckCircle className="h-4 w-4 mr-2" /> Hired</>
                             ) : job.applicationStatus === 'NOT_HIRED' ? (
@@ -364,10 +377,12 @@ const EditorJobs: React.FC = () => {
               {selectedJob && (
                 <Button
                   onClick={handleApply}
-                  disabled={applying || !profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED')}
-                  className={`flex-1 rounded-full h-12 font-semibold ${!profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED') ? 'bg-white/10 text-white cursor-default hover:bg-white/10' : 'bg-rose-600 hover:bg-rose-700 text-white'} ${selectedJob.applied && selectedJob.applicationStatus === 'HIRED' ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
+                  disabled={isExpired(selectedJob.deadline) || applying || !profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED')}
+                  className={`flex-1 rounded-full h-12 font-semibold ${isExpired(selectedJob.deadline) || !profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED') ? 'bg-white/10 text-gray-400 cursor-default hover:bg-white/10' : 'bg-rose-600 hover:bg-rose-700 text-white'} ${selectedJob.applied && selectedJob.applicationStatus === 'HIRED' ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
                 >
-                  {applying ? (
+                  {isExpired(selectedJob.deadline) ? (
+                    'Not Available (Deadline Crossed)'
+                  ) : applying ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                       Applying...

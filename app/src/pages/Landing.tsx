@@ -198,16 +198,22 @@ const Landing: React.FC = () => {
                   <Badge className="bg-purple-500/20 text-purple-300 border-none">Verified</Badge>
                 </div>
                 <div className="space-y-6">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center space-x-4 bg-white/5 p-4 rounded-xl border border-white/5">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold text-lg">
-                        {String.fromCharCode(64 + i)}
+                  {[
+                    { name: "Alex Chen", role: "Cinematic Editor", initial: "A", color: "from-rose-500 to-orange-500" },
+                    { name: "Sarah Jenkins", role: "VFX Specialist", initial: "S", color: "from-purple-500 to-blue-500" },
+                    { name: "David Kim", role: "Colorist", initial: "D", color: "from-blue-500 to-cyan-500" }
+                  ].map((editor, i) => (
+                    <div key={i} className="flex items-center space-x-4 bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
+                      <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${editor.color} flex items-center justify-center font-bold text-lg text-white shadow-lg`}>
+                        {editor.initial}
                       </div>
                       <div>
-                        <div className="h-4 w-32 bg-white/20 rounded mb-2"></div>
-                        <div className="h-3 w-24 bg-white/10 rounded"></div>
+                        <div className="font-bold text-white text-lg">{editor.name}</div>
+                        <div className="text-sm text-gray-400">{editor.role}</div>
                       </div>
                       <div className="ml-auto flex space-x-1">
+                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />

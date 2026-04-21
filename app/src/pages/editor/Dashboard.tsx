@@ -84,7 +84,16 @@ const EditorDashboard: React.FC = () => {
         api.getAppliedJobs(),
       ]);
       
-      setAvailableJobs(allJobsData.jobs || []);
+      let jobs = allJobsData.jobs || [];
+      jobs.sort((a: Job, b: Job) => {
+        const isAExpired = new Date(a.deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
+        const isBExpired = new Date(b.deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
+        if (isAExpired && !isBExpired) return 1;
+        if (!isAExpired && isBExpired) return -1;
+        return 0;
+      });
+
+      setAvailableJobs(jobs);
       setAppliedJobs(appliedJobsData.jobs || []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch jobs');
@@ -92,6 +101,8 @@ const EditorDashboard: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  const isExpired = (deadline: string) => new Date(deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
 
   const fetchJobDetails = async (jobId: string) => {
     try {
@@ -122,10 +133,10 @@ const EditorDashboard: React.FC = () => {
   };
 
   const formatBudget = (budget: number) => {
-    return new Intl.NumberFormat('en-IN', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 1,
       notation: 'compact',
       compactDisplay: 'short'
     }).format(budget);
@@ -150,30 +161,40 @@ const EditorDashboard: React.FC = () => {
         <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
           {/* Notifications */}
           {hiringAlert && (
-          <Alert className={`mb-6 border border-white/10 relative overflow-hidden ${hiringAlert.type === 'HIRED' ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
-            {hiringAlert.type === 'HIRED' && (
-              <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
-                <PartyPopper className="h-32 w-32 -mt-4 -mr-4 text-green-400" />
-              </div>
-            )}
-            <div className="relative z-10 flex items-start gap-3">
+          <Alert className={`mb-8 border relative overflow-hidden p-6 rounded-3xl shadow-2xl ${hiringAlert.type === 'HIRED' ? 'bg-gradient-to-br from-green-900/40 to-[#111] border-green-500/30' : 'bg-gradient-to-br from-red-900/40 to-[#111] border-red-500/30'}`}>
+            <div className="absolute right-0 top-0 w-1/3 h-full opacity-30 pointer-events-none">
+              <img 
+                src={hiringAlert.type === 'HIRED' 
+                  ? 'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=3d%20render%20of%20golden%20confetti%20and%20party%20popper%20celebration%20cinematic%20lighting&image_size=landscape_16_9' 
+                  : 'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=3d%20render%20of%20closed%20door%20with%20subtle%20red%20neon%20light%20cinematic&image_size=landscape_16_9'} 
+                alt="Background" 
+                className="w-full h-full object-cover mix-blend-screen"
+              />
+            </div>
+            <div className="relative z-10 flex items-start gap-4">
               {hiringAlert.type === 'HIRED' ? (
-                <PartyPopper className="h-5 w-5 text-green-400 mt-0.5" />
+                <div className="bg-green-500/20 p-3 rounded-2xl border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.3)]">
+                  <PartyPopper className="h-8 w-8 text-green-400" />
+                </div>
               ) : (
-                <XCircle className="h-5 w-5 text-red-400 mt-0.5" />
+                <div className="bg-red-500/20 p-3 rounded-2xl border border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.3)]">
+                  <XCircle className="h-8 w-8 text-red-400" />
+                </div>
               )}
-              <div>
-                <AlertTitle className={`font-bold ${hiringAlert.type === 'HIRED' ? 'text-green-300' : 'text-red-300'}`}>
-                  {hiringAlert.type === 'HIRED' ? 'Congratulations!' : 'Application Update'}
+              <div className="flex-1">
+                <AlertTitle className={`text-2xl font-extrabold tracking-tight mb-2 ${hiringAlert.type === 'HIRED' ? 'text-green-400' : 'text-red-400'}`}>
+                  {hiringAlert.type === 'HIRED' ? 'Congratulations! You Got the Job! 🎉' : 'Application Update'}
                 </AlertTitle>
-                <AlertDescription className="text-gray-300">
-                  {hiringAlert.type === 'HIRED' 
-                    ? `You have been hired for "${hiringAlert.jobTitle}"! The client will contact you soon.`
-                    : `The application for "${hiringAlert.jobTitle}" was not successful this time. Keep applying!`}
+                <AlertDescription className="text-gray-300 text-lg flex items-center justify-between">
+                  <span>
+                    {hiringAlert.type === 'HIRED' 
+                      ? `You have been officially hired for "${hiringAlert.jobTitle}". The client will contact you shortly.`
+                      : `The application for "${hiringAlert.jobTitle}" was not successful this time. Keep applying!`}
+                  </span>
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="sm" 
-                    className="ml-4 h-auto p-0 underline hover:bg-transparent text-gray-400 hover:text-white" 
+                    className="ml-4 h-10 px-6 rounded-full border-white/20 hover:bg-white/10 text-white shadow-lg backdrop-blur-md" 
                     onClick={() => setHiringAlert(null)}
                   >
                     Dismiss
@@ -284,7 +305,7 @@ const EditorDashboard: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {availableJobs.slice(0, 6).map((job) => (
-                    <Card key={job.id} className="bg-[#111] border-white/5 hover:border-rose-500/30 hover:shadow-2xl hover:shadow-rose-500/5 transition-all duration-300 flex flex-col group">
+                    <Card key={job.id} className="bg-[#111] border-white/5 hover:border-rose-500/30 hover:shadow-[0_20px_50px_rgba(225,29,72,0.15)] transition-all duration-500 hover:-translate-y-2 flex flex-col group rounded-2xl overflow-hidden">
                       <CardHeader className="pb-3">
                         <div className="flex justify-between items-start">
                           <h3 className="font-bold text-lg text-white line-clamp-1 group-hover:text-rose-400 transition-colors">{job.title}</h3>
@@ -292,9 +313,9 @@ const EditorDashboard: React.FC = () => {
                             {job.category}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-500 flex items-center mt-2">
+                        <p className={`text-sm flex items-center mt-2 ${isExpired(job.deadline) ? 'text-red-400' : 'text-gray-500'}`}>
                           <Clock className="h-3 w-3 mr-1" />
-                          Posted recently
+                          {isExpired(job.deadline) ? 'Deadline Crossed' : 'Posted recently'}
                         </p>
                       </CardHeader>
                       <CardContent className="pb-4 flex-1 flex flex-col">
@@ -445,10 +466,12 @@ const EditorDashboard: React.FC = () => {
             {selectedJob && (
               <Button
                 onClick={handleApply}
-                disabled={applying || !profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED')}
-                className={`flex-1 rounded-full h-12 font-semibold ${!profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED') ? 'bg-white/10 text-white cursor-default hover:bg-white/10' : 'bg-rose-600 hover:bg-rose-700 text-white'} ${selectedJob.applied && selectedJob.applicationStatus === 'HIRED' ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
+                disabled={isExpired(selectedJob.deadline) || applying || !profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED')}
+                className={`flex-1 rounded-full h-12 font-semibold ${isExpired(selectedJob.deadline) || !profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED') ? 'bg-white/10 text-gray-400 cursor-default hover:bg-white/10' : 'bg-rose-600 hover:bg-rose-700 text-white'} ${selectedJob.applied && selectedJob.applicationStatus === 'HIRED' ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
               >
-                {applying ? (
+                {isExpired(selectedJob.deadline) ? (
+                  'Not Available (Deadline Crossed)'
+                ) : applying ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Applying...

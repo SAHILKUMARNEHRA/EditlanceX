@@ -3,7 +3,7 @@ import { useAuth } from '@/context/AuthContext';
 import * as api from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Users, Briefcase, FileText, TrendingUp, Mail, ShieldAlert, Trash2, KeyRound } from 'lucide-react';
+import { Loader2, Users, Briefcase, FileText, TrendingUp, Mail, ShieldAlert, Trash2, KeyRound, Eye } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,6 +23,7 @@ const AdminDashboard: React.FC = () => {
   const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
   const [resetPassDialogOpen, setResetPassDialogOpen] = useState(false);
   const [deleteJobDialogOpen, setDeleteJobDialogOpen] = useState(false);
+  const [viewJobDialogOpen, setViewJobDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [newPassword, setNewPassword] = useState('');
@@ -85,6 +86,16 @@ const AdminDashboard: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Failed to delete job');
     }
+  };
+
+  const formatBudget = (budget: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 1,
+      notation: 'compact',
+      compactDisplay: 'short'
+    }).format(budget);
   };
 
   if (!isAdmin) {
@@ -314,7 +325,7 @@ const AdminDashboard: React.FC = () => {
                           <TableCell className="text-gray-300">{j.clientName}</TableCell>
                           <TableCell>
                             <div className="flex items-center text-green-400 font-semibold bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20 w-max">
-                              ₹{j.budget}
+                              {formatBudget(j.budget)}
                             </div>
                           </TableCell>
                           <TableCell className="text-gray-300">{j.applicationsCount}</TableCell>
@@ -323,6 +334,35 @@ const AdminDashboard: React.FC = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="border-white/10 text-gray-300 hover:bg-white/10 hover:text-white rounded-full h-8 w-8 p-0"
+                                onClick={() => {
+                                  setSelectedJob(j);
+                                  setViewJobDialogOpen(true);
+                                }}
+                              >
+                                <Eye className="h-4 w-4 text-blue-400" />
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="border-white/10 text-gray-300 hover:bg-white/10 hover:text-white rounded-full h-8 px-3"
+                                onClick={async () => {
+                                  if (window.confirm('Are you sure you want to close this job?')) {
+                                    try {
+                                      await api.updateJobStatus(j.id, 'CLOSED');
+                                      fetchAdminData();
+                                    } catch (err) {
+                                      setError('Failed to close job');
+                                    }
+                                  }
+                                }}
+                                disabled={j.status !== 'OPEN'}
+                              >
+                                Close
+                              </Button>
                               <Button 
                                 variant="destructive" 
                                 size="sm"
@@ -404,6 +444,51 @@ const AdminDashboard: React.FC = () => {
           <DialogFooter className="border-t border-white/10 pt-4">
             <Button variant="outline" onClick={() => setDeleteJobDialogOpen(false)} className="border-white/20 text-white hover:bg-white/10 rounded-full">Cancel</Button>
             <Button variant="destructive" onClick={handleDeleteJob} className="rounded-full">Delete Job</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Job Modal */}
+      <Dialog open={viewJobDialogOpen} onOpenChange={setViewJobDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] bg-[#111] border-white/10 text-white">
+          <DialogHeader>
+            <div className="flex justify-between items-start">
+              <DialogTitle className="text-2xl font-bold">{selectedJob?.title}</DialogTitle>
+              <Badge className={selectedJob?.status === 'OPEN' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-gray-800 text-gray-400'}>
+                {selectedJob?.status}
+              </Badge>
+            </div>
+            <DialogDescription className="flex items-center mt-2 space-x-4 text-gray-400">
+              <span className="flex items-center">
+                <Briefcase className="mr-1 h-4 w-4" />
+                {selectedJob?.category}
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4 space-y-6">
+            <div className="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5">
+              <div>
+                <p className="text-sm text-gray-400 font-medium uppercase tracking-wider mb-1">Client</p>
+                <p className="font-semibold text-white">{selectedJob?.clientName}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-400 font-medium uppercase tracking-wider mb-1">Budget</p>
+                <p className="font-bold text-xl text-green-400">{selectedJob && formatBudget(selectedJob.budget)}</p>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">Description</h4>
+              <p className="text-gray-400 whitespace-pre-wrap leading-relaxed text-sm bg-white/5 p-4 rounded-xl border border-white/5">
+                {selectedJob?.description}
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-white/10 mt-2">
+            <Button variant="outline" onClick={() => setViewJobDialogOpen(false)} className="flex-1 border-white/20 text-white hover:bg-white/10 rounded-full h-12">
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

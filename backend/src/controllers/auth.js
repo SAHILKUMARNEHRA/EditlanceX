@@ -17,12 +17,13 @@ const signup = async (req, res) => {
       return res.status(400).json({ error: 'Please provide all required fields' });
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        email_role: { email, role: role || 'client' }
-      }
+    const existingUser = await prisma.user.findFirst({
+      where: { email }
     });
     if (existingUser) {
+      if (existingUser.role !== (role || 'client')) {
+        return res.status(400).json({ error: `An account already exists as a ${existingUser.role} with this email. Please try a new email or login as a ${existingUser.role}.` });
+      }
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 
@@ -52,13 +53,21 @@ const login = async (req, res) => {
       return res.status(400).json({ error: 'Please provide email, password, and role' });
     }
 
-    const user = await prisma.user.findUnique({
-      where: {
-        email_role: { email, role }
-      }
+    const userWithAnyRole = await prisma.user.findFirst({
+      where: { email }
     });
-    if (!user || !user.password) {
+
+    if (!userWithAnyRole) {
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    if (userWithAnyRole.role !== role) {
+      return res.status(401).json({ error: `An account exists as a ${userWithAnyRole.role} with this email. Please login as a ${userWithAnyRole.role}.` });
+    }
+
+    const user = userWithAnyRole;
+    if (!user.password) {
+      return res.status(401).json({ error: 'Please login with Google' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -93,13 +102,23 @@ const googleLogin = async (req, res) => {
 
     const { email, name, sub: googleId, picture: avatar } = userInfo;
 
-    let user = await prisma.user.findUnique({
-      where: {
-        email_role: { email, role: role || 'client' }
-      }
+    let user = await prisma.user.findFirst({
+      where: { email }
     });
 
-    if (!user) {
+    if (user) {
+      if (user.role !== (role || 'client')) {
+        return res.status(400).json({ error: `An account already exists as a ${user.role} with this email. Please login as a ${user.role}.` });
+      }
+      // Link Google account if email already exists or just update last login
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { 
+          googleId: user.googleId || googleId,
+          lastLogin: new Date()
+        },
+      });
+    } else {
       user = await prisma.user.create({
         data: {
           email,
@@ -107,15 +126,6 @@ const googleLogin = async (req, res) => {
           googleId,
           role: role || 'client',
           lastLogin: new Date(),
-        },
-      });
-    } else {
-      // Link Google account if email already exists or just update last login
-      user = await prisma.user.update({
-        where: { email_role: { email, role: role || 'client' } },
-        data: { 
-          googleId: user.googleId || googleId,
-          lastLogin: new Date()
         },
       });
     }

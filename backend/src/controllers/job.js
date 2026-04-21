@@ -167,11 +167,16 @@ const getPostedJobs = async (req, res) => {
 
 const deleteJob = async (req, res) => {
   try {
-    if (req.user.role !== 'admin' && req.user.email !== 'sk.nehra2005@gmail.com') {
-      return res.status(403).json({ error: 'Access denied' });
+    const { id } = req.params;
+    
+    const job = await prisma.job.findUnique({ where: { id } });
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
     }
 
-    const { id } = req.params;
+    if (req.user.role !== 'admin' && req.user.email !== 'sk.nehra2005@gmail.com' && job.createdBy !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
 
     // Delete related applications first
     await prisma.application.deleteMany({ where: { jobId: id } });
@@ -183,6 +188,33 @@ const deleteJob = async (req, res) => {
   } catch (error) {
     console.error('Error deleting job:', error);
     res.status(500).json({ error: 'Error deleting job' });
+  }
+};
+
+const updateJobStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const job = await prisma.job.findUnique({ where: { id } });
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    if (req.user.role !== 'admin' && req.user.email !== 'sk.nehra2005@gmail.com' && job.createdBy !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const updatedJob = await prisma.job.update({
+      where: { id },
+      data: { status }
+    });
+
+    res.json(updatedJob);
+  } catch (error) {
+    console.error('Error updating job status:', error);
+    res.status(500).json({ error: 'Error updating job status' });
   }
 };
 
@@ -219,4 +251,4 @@ const getAdminJobs = async (req, res) => {
   }
 };
 
-module.exports = { createJob, getJobs, getJobById, getPostedJobs, deleteJob, getAdminJobs };
+module.exports = { createJob, getJobs, getJobById, getPostedJobs, deleteJob, getAdminJobs, updateJobStatus };

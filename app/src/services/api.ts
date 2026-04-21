@@ -92,6 +92,13 @@ export const createJob = async (jobData: {
   });
 };
 
+export const updateJobStatus = async (id: string, status: string) => {
+  return fetchWithAuth(`/jobs/${id}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status })
+  });
+};
+
 export const applyJob = async (jobId: string) => {
   return fetchWithAuth(`/jobs/${jobId}/apply`, {
     method: 'POST',
@@ -207,6 +214,8 @@ export default {
   getJobs,
   getJobById,
   createJob,
+  updateJobStatus,
+  deleteJob,
   applyJob,
   getAppliedJobs,
   getPostedJobs,

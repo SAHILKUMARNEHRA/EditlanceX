@@ -108,11 +108,17 @@ const getJobById = async (req, res) => {
     }
 
     const isOwner = job.createdBy === req.user.id;
+    const isEditor = req.user.role === 'editor';
+
+    // Find the current editor's application if they are an editor
+    const myApplication = isEditor ? job.applications.find(app => app.editor.id === req.user.id) : null;
 
     const formattedJob = {
       ...job,
       clientName: job.client?.name || 'Unknown Client',
-      applications: job.applications.map(app => ({
+      applied: !!myApplication,
+      applicationStatus: myApplication ? myApplication.status : null,
+      applications: isOwner ? job.applications.map(app => ({
         id: app.id,
         appliedAt: app.createdAt,
         status: app.status,
@@ -120,11 +126,11 @@ const getJobById = async (req, res) => {
         editor: {
           id: app.editor.id,
           name: app.editor.name,
-          email: isOwner && app.isContacted ? app.editor.email : 'Exclusive Info', // Only show if contacted
-          phone: isOwner && app.isContacted ? app.editor.phone : 'Exclusive Info', // Only show if contacted
+          email: app.isContacted ? app.editor.email : 'Exclusive Info', // Only show if contacted
+          phone: app.isContacted ? app.editor.phone : 'Exclusive Info', // Only show if contacted
           profile: app.editor.editorProfile
         }
-      }))
+      })) : undefined // Don't send applications list to editors
     };
 
     res.json(formattedJob);

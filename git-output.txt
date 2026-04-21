@@ -1,6 +1,2 @@
-[main a21d55b] Complete overhaul: add AI images, fix deadline logic, add admin view, fix invisible buttons, update auth logic, and convert budget to K notation
- 20 files changed, 476 insertions(+), 265 deletions(-)
- create mode 100644 git-output.txt
- create mode 100644 prisma-output.txt
- create mode 100644 push_prisma.js
- create mode 100644 ts-output.txt
+[main 318819b] Deploy latest dark cinematic theme, bug fixes, and AI notifications
+ 1 file changed, 1 insertion(+), 1 deletion(-)

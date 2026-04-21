@@ -1,6 +1,6 @@
 const express = require('express');
 const { sendDirectRequest, getClientRequests, getEditorRequests, respondToDirectRequest } = require('../controllers/request');
-const auth = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 const router = express.Router();
 
 router.post('/requests/direct', auth, sendDirectRequest);

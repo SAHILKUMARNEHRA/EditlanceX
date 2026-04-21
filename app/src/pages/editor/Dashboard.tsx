@@ -149,8 +149,9 @@ const EditorDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 animate-in fade-in duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">{/* Notifications */}
-        {hiringAlert && (
+        <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+          {/* Notifications */}
+          {hiringAlert && (
           <Alert className={`mb-6 border-2 relative overflow-hidden ${hiringAlert.type === 'HIRED' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
             {hiringAlert.type === 'HIRED' && (
               <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
@@ -255,8 +256,10 @@ const EditorDashboard: React.FC = () => {
           </Card>
         </div>
 
-        {/* Jobs Tabs */}<div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
-          <Tabs defaultValue="available" className="w-full">          <TabsList className="mb-6">
+        {/* Jobs Tabs */}
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+          <Tabs defaultValue="available" className="w-full">
+            <TabsList className="mb-6">
             <TabsTrigger value="available">Available Jobs</TabsTrigger>
             <TabsTrigger value="applied">Applied Jobs</TabsTrigger>
           </TabsList>
@@ -483,6 +486,8 @@ const EditorDashboard: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        </div>
+      </div>
     </div>
   );
 };

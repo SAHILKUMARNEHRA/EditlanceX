@@ -3,7 +3,7 @@ import { useAuth } from '@/context/AuthContext';
 import * as api from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Users, Briefcase, FileText, TrendingUp, Mail, ShieldAlert, Clock, Trash2, KeyRound, IndianRupee } from 'lucide-react';
+import { Loader2, Users, Briefcase, FileText, TrendingUp, Mail, ShieldAlert, Trash2, KeyRound, IndianRupee } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

@@ -149,8 +149,9 @@ const EditorJobs: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 animate-in fade-in duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">{/* Profile Incomplete Banner */}
-        {!profileComplete && (
+        <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+          {/* Profile Incomplete Banner */}
+          {!profileComplete && (
           <div className="mb-8 bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="bg-amber-100 p-2 rounded-full">
@@ -402,6 +403,7 @@ const EditorJobs: React.FC = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
     </div>
   );

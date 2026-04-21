@@ -32,7 +32,6 @@ const EditorListing: React.FC = () => {
   const [selectedEditor, setSelectedEditor] = useState<Editor | null>(null);
   const [hireDialogOpen, setHireDialogOpen] = useState(false);
   const [hiring, setHiring] = useState(false);
-  const [hiredEditors, setHiredEditors] = useState<string[]>([]);
 
   useEffect(() => {
     fetchEditors();

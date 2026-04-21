@@ -120,7 +120,7 @@ const EditorProfile: React.FC = () => {
     setValidationError('');
     
     // Validation
-    if (!formData.bio || formData.bio.trim().split(/\\s+/).length < 20) {
+    if (!formData.bio || formData.bio.trim().split(/\s+/).length < 20) {
       setValidationError('Please provide a bio with at least 20 words.');
       return;
     }
@@ -199,28 +199,37 @@ const EditorProfile: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Notifications */}
         {hiringAlert && (
-          <Alert className={`mb-6 border-2 ${hiringAlert.type === 'HIRED' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-            {hiringAlert.type === 'HIRED' ? (
-              <PartyPopper className="h-5 w-5 text-green-600" />
-            ) : (
-              <XCircle className="h-5 w-5 text-red-600" />
+          <Alert className={`mb-6 border-2 relative overflow-hidden ${hiringAlert.type === 'HIRED' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+            {hiringAlert.type === 'HIRED' && (
+              <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
+                <PartyPopper className="h-32 w-32 -mt-4 -mr-4 text-green-600" />
+              </div>
             )}
-            <AlertTitle className={`font-bold ${hiringAlert.type === 'HIRED' ? 'text-green-800' : 'text-red-800'}`}>
-              {hiringAlert.type === 'HIRED' ? 'Congratulations!' : 'Application Update'}
-            </AlertTitle>
-            <AlertDescription className={hiringAlert.type === 'HIRED' ? 'text-green-700' : 'text-red-700'}>
-              {hiringAlert.type === 'HIRED' 
-                ? `You have been hired for "${hiringAlert.jobTitle}"! The client will contact you soon.`
-                : `The application for "${hiringAlert.jobTitle}" was not successful this time. Keep applying!`}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="ml-4 h-auto p-0 underline hover:bg-transparent" 
-                onClick={() => setHiringAlert(null)}
-              >
-                Dismiss
-              </Button>
-            </AlertDescription>
+            <div className="relative z-10 flex items-start gap-3">
+              {hiringAlert.type === 'HIRED' ? (
+                <PartyPopper className="h-5 w-5 text-green-600 mt-0.5" />
+              ) : (
+                <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
+              )}
+              <div>
+                <AlertTitle className={`font-bold ${hiringAlert.type === 'HIRED' ? 'text-green-800' : 'text-red-800'}`}>
+                  {hiringAlert.type === 'HIRED' ? 'Congratulations!' : 'Application Update'}
+                </AlertTitle>
+                <AlertDescription className={hiringAlert.type === 'HIRED' ? 'text-green-700' : 'text-red-700'}>
+                  {hiringAlert.type === 'HIRED' 
+                    ? `You have been hired for "${hiringAlert.jobTitle}"! The client will contact you soon.`
+                    : `The application for "${hiringAlert.jobTitle}" was not successful this time. Keep applying!`}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="ml-4 h-auto p-0 underline hover:bg-transparent" 
+                    onClick={() => setHiringAlert(null)}
+                  >
+                    Dismiss
+                  </Button>
+                </AlertDescription>
+              </div>
+            </div>
           </Alert>
         )}
 

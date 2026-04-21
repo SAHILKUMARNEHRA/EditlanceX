@@ -320,8 +320,10 @@ const ClientDashboard: React.FC = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-xl">
                 <div className="space-y-1">
                   <p className="text-xs text-gray-500 uppercase font-semibold">Budget</p>
-                  <p className="text-lg font-bold text-green-600">
-                    {formatBudget(selectedJob.budget)}
+                  <p className="text-lg font-bold text-green-600 flex items-center">
+                    <span className="truncate" title={selectedJob.budget.toString()}>
+                      {formatBudget(selectedJob.budget)}
+                    </span>
                   </p>
                 </div>
                 <div className="space-y-1">

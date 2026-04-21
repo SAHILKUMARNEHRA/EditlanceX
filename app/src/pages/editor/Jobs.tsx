@@ -326,8 +326,9 @@ const EditorJobs: React.FC = () => {
                   <div className="space-y-1">
                   <p className="text-xs text-gray-500 uppercase font-semibold">Budget</p>
                   <p className="text-lg font-bold text-green-600 flex items-center">
-                    <IndianRupee className="h-4 w-4 mr-0.5" />
-                    {formatBudget(selectedJob.budget)}
+                    <span className="truncate" title={selectedJob.budget.toString()}>
+                      {formatBudget(selectedJob.budget)}
+                    </span>
                   </p>
                 </div>
                   <div className="space-y-1">

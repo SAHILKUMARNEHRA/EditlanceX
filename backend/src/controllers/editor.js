@@ -4,7 +4,6 @@ const getEditors = async (req, res) => {
   try {
     const editors = await prisma.user.findMany({
       where: { role: 'editor' },
-      include: { editorProfile: true },
       select: {
         id: true,
         name: true,

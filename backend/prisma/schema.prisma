@@ -24,17 +24,20 @@ enum ApplicationStatus {
 model User {
   id            String         @id @default(uuid())
   name          String
-  email         String         @unique
+  email         String
   phone         String?        // New: Exclusive contact info
   password      String?        // Nullable for Google OAuth users
   role          Role           @default(client)
-  googleId      String?        @unique
+  googleId      String?
   lastLogin     DateTime?      // New: Track last login time
   editorProfile EditorProfile?
   jobs          Job[]          @relation("ClientJobs")
   applications  Application[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+
+  @@unique([email, role])
+  @@unique([googleId, role])
 }
 
 model EditorProfile {

@@ -121,6 +121,8 @@ const ClientDashboard: React.FC = () => {
       style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 0,
+      notation: 'compact',
+      compactDisplay: 'short'
     }).format(budget);
   };
 

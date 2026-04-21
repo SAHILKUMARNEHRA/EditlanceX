@@ -23,6 +23,7 @@ interface Job {
   clientName: string;
   status: string;
   applied?: boolean;
+  applicationStatus?: string;
 }
 
 const EditorDashboard: React.FC = () => {
@@ -236,7 +237,7 @@ const EditorDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {appliedJobs.length > 0 ? '75%' : 'N/A'}
+                {appliedJobs.length > 0 ? `${Math.round((appliedJobs.filter(j => j.status === 'HIRED').length / appliedJobs.length) * 100)}%` : 'N/A'}
               </div>
               <p className="text-xs text-gray-500">Based on applications</p>
             </CardContent>
@@ -286,7 +287,12 @@ const EditorDashboard: React.FC = () => {
                           <User className="h-3 w-3 mr-1" />
                           {job.clientName}
                         </span>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 items-center">
+                          {job.applied && job.applicationStatus && (
+                            <Badge className={job.applicationStatus === 'HIRED' ? 'bg-green-600' : job.applicationStatus === 'PENDING' ? 'bg-yellow-500' : 'bg-red-500'}>
+                              {job.applicationStatus}
+                            </Badge>
+                          )}
                           <Button 
                             variant="ghost" 
                             size="sm" 
@@ -297,14 +303,14 @@ const EditorDashboard: React.FC = () => {
                           </Button>
                           <Button
                             size="sm"
-                            disabled={!profileComplete}
-                            className={`${!profileComplete ? 'bg-gray-300' : 'bg-rose-500 hover:bg-rose-600'} h-8 text-xs`}
+                            disabled={!profileComplete || job.applied}
+                            className={`${(!profileComplete || job.applied) ? 'bg-gray-300' : 'bg-rose-500 hover:bg-rose-600'} h-8 text-xs`}
                             onClick={() => {
                               setSelectedJob(job);
                               setDetailsDialogOpen(true);
                             }}
                           >
-                            Apply
+                            {job.applied ? 'Applied' : 'Apply'}
                           </Button>
                         </div>
                       </div>
@@ -336,8 +342,8 @@ const EditorDashboard: React.FC = () => {
                         <h3 className="font-semibold text-gray-900 line-clamp-1">{job.title}</h3>
                         <div className="flex flex-col items-end gap-1">
                           <Badge className="bg-green-100 text-green-700">Applied</Badge>
-                          {job.status && job.status !== 'PENDING' && (
-                            <Badge className={job.status === 'HIRED' ? 'bg-green-600' : 'bg-red-500'}>
+                          {job.status && (
+                            <Badge className={job.status === 'HIRED' ? 'bg-green-600' : job.status === 'PENDING' ? 'bg-yellow-500' : 'bg-red-500'}>
                               {job.status}
                             </Badge>
                           )}

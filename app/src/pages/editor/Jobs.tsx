@@ -21,6 +21,7 @@ interface Job {
   clientName: string;
   status: string;
   applied?: boolean;
+  applicationStatus?: string;
 }
 
 const categories = ['All', 'Wedding', 'YouTube', 'Corporate', 'Social Media', 'Documentary', 'Music Video', 'Other'];
@@ -127,6 +128,8 @@ const EditorJobs: React.FC = () => {
       style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 0,
+      notation: 'compact',
+      compactDisplay: 'short'
     }).format(budget);
   };
 
@@ -253,7 +256,12 @@ const EditorJobs: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center flex-wrap">
+                    {job.applied && job.applicationStatus && (
+                      <Badge className={job.applicationStatus === 'HIRED' ? 'bg-green-600' : job.applicationStatus === 'PENDING' ? 'bg-yellow-500' : 'bg-red-500'}>
+                        {job.applicationStatus}
+                      </Badge>
+                    )}
                     <Button
                       variant="outline"
                       onClick={() => fetchJobDetails(job.id)}

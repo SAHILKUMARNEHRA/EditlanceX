@@ -4,7 +4,7 @@ const { createJob, getJobs, getJobById, getPostedJobs } = require('../controller
 const { auth, authorize, optionalAuth } = require('../middleware/auth');
 
 router.post('/jobs', auth, authorize('client'), createJob);
-router.get('/jobs', optionalAuth, getJobs);
+router.get('/jobs', auth, getJobs);
 router.get('/jobs/posted', auth, authorize('client'), getPostedJobs);
 router.get('/jobs/:id', auth, getJobById);
 

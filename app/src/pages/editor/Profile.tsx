@@ -120,8 +120,8 @@ const EditorProfile: React.FC = () => {
     setValidationError('');
     
     // Validation
-    if (!formData.bio || formData.bio.length < 50) {
-      setValidationError('Please provide a bio with at least 50 characters.');
+    if (!formData.bio || formData.bio.trim().split(/\\s+/).length < 20) {
+      setValidationError('Please provide a bio with at least 20 words.');
       return;
     }
     if (formData.skills.length === 0) {
@@ -321,7 +321,7 @@ const EditorProfile: React.FC = () => {
             <CardContent className="space-y-6">
               {/* Bio */}
               <div>
-                <Label className="text-sm font-medium text-gray-700">Bio</Label>
+                <Label className="text-sm font-medium text-gray-700">Bio <span className="text-red-500">*</span></Label>
                 {isEditing ? (
                   <Textarea
                     value={formData.bio}
@@ -339,7 +339,7 @@ const EditorProfile: React.FC = () => {
 
               {/* Skills */}
               <div>
-                <Label className="text-sm font-medium text-gray-700">Skills</Label>
+                <Label className="text-sm font-medium text-gray-700">Skills <span className="text-red-500">*</span></Label>
                 {isEditing ? (
                   <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {skillOptions.map((skill) => (
@@ -376,7 +376,7 @@ const EditorProfile: React.FC = () => {
 
               {/* Experience */}
               <div>
-                <Label className="text-sm font-medium text-gray-700">Experience</Label>
+                <Label className="text-sm font-medium text-gray-700">Experience <span className="text-red-500">*</span></Label>
                 {isEditing ? (
                   <Select
                     value={formData.experience}
@@ -422,7 +422,7 @@ const EditorProfile: React.FC = () => {
 
               {/* Availability */}
               <div>
-                <Label className="text-sm font-medium text-gray-700">Availability</Label>
+                <Label className="text-sm font-medium text-gray-700">Availability <span className="text-red-500">*</span></Label>
                 {isEditing ? (
                   <Select
                     value={formData.availability}
@@ -448,7 +448,7 @@ const EditorProfile: React.FC = () => {
 
               {/* Portfolio Links */}
               <div>
-                <Label className="text-sm font-medium text-gray-700">Portfolio Links</Label>
+                <Label className="text-sm font-medium text-gray-700">Portfolio Links <span className="text-red-500">*</span></Label>
                 {isEditing ? (
                   <div className="mt-2">
                     <div className="space-y-2 mb-3">
@@ -536,12 +536,15 @@ const EditorProfile: React.FC = () => {
                     <p className="text-sm text-gray-600 line-clamp-2 mb-4">{job.description}</p>
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center text-green-600 font-medium">
-                        <IndianRupee className="h-4 w-4 mr-1" />
-                        {new Intl.NumberFormat('en-IN', {
-                          style: 'currency',
-                          currency: 'INR',
-                          maximumFractionDigits: 0,
-                        }).format(job.budget)}
+                        <IndianRupee className="h-4 w-4 mr-1 flex-shrink-0" />
+                        <span className="truncate" title={job.budget.toString()}>
+                          {new Intl.NumberFormat('en-IN', {
+                            style: 'currency',
+                            currency: 'INR',
+                            maximumFractionDigits: 0,
+                            notation: 'compact',
+                          }).format(job.budget)}
+                        </span>
                       </div>
                       <div className="flex items-center text-gray-500">
                         <Calendar className="h-4 w-4 mr-1" />

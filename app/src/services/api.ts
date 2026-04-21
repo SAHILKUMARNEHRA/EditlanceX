@@ -47,10 +47,10 @@ async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
 }
 
 // Auth APIs
-export const login = async (email: string, password: string) => {
+export const login = async (email: string, password: string, role: string) => {
   return fetchWithAuth('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, role }),
   });
 };
 

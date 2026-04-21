@@ -7,11 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Film, Loader2, Chrome } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Film, Loader2, Chrome, User, Briefcase } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'editor' | 'client'>('editor');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login, googleLogin } = useAuth();
@@ -23,7 +25,7 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await login(email, password, role);
       navigate('/');
     } catch (err: any) {
       setError(err.message || 'Failed to login. Please try again.');
@@ -37,7 +39,7 @@ const Login: React.FC = () => {
       setError('');
       setIsLoading(true);
       try {
-        await googleLogin(tokenResponse.access_token);
+        await googleLogin(tokenResponse.access_token, role);
         navigate('/');
       } catch (err: any) {
         setError(err.message || 'Google login failed. Please try again.');
@@ -73,7 +75,47 @@ const Login: React.FC = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
+                <Label>I want to log in as</Label>
+                <RadioGroup
+                  value={role}
+                  onValueChange={(value) => setRole(value as 'editor' | 'client')}
+                  className="grid grid-cols-2 gap-4"
+                >
+                  <div>
+                    <RadioGroupItem
+                      value="editor"
+                      id="editor"
+                      className="peer sr-only"
+                      disabled={isLoading}
+                    />
+                    <Label
+                      htmlFor="editor"
+                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-white p-4 hover:bg-gray-50 peer-data-[state=checked]:border-rose-500 peer-data-[state=checked]:bg-rose-50 cursor-pointer"
+                    >
+                      <User className="mb-2 h-6 w-6 text-rose-500" />
+                      <span className="text-sm font-medium">Editor</span>
+                    </Label>
+                  </div>
+                  <div>
+                    <RadioGroupItem
+                      value="client"
+                      id="client"
+                      className="peer sr-only"
+                      disabled={isLoading}
+                    />
+                    <Label
+                      htmlFor="client"
+                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-white p-4 hover:bg-gray-50 peer-data-[state=checked]:border-rose-500 peer-data-[state=checked]:bg-rose-50 cursor-pointer"
+                    >
+                      <Briefcase className="mb-2 h-6 w-6 text-rose-500" />
+                      <span className="text-sm font-medium">Client</span>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email address <span className="text-red-500">*</span></Label>
                 <Input
                   id="email"
                   type="email"
@@ -86,7 +128,7 @@ const Login: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
                 <Input
                   id="password"
                   type="password"

@@ -17,7 +17,11 @@ const signup = async (req, res) => {
       return res.status(400).json({ error: 'Please provide all required fields' });
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email_role: { email, role: role || 'client' }
+      }
+    });
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists with this email' });
     }
@@ -42,13 +46,17 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Please provide email and password' });
+    if (!email || !password || !role) {
+      return res.status(400).json({ error: 'Please provide email, password, and role' });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: {
+        email_role: { email, role }
+      }
+    });
     if (!user || !user.password) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -85,7 +93,11 @@ const googleLogin = async (req, res) => {
 
     const { email, name, sub: googleId, picture: avatar } = userInfo;
 
-    let user = await prisma.user.findUnique({ where: { email } });
+    let user = await prisma.user.findUnique({
+      where: {
+        email_role: { email, role: role || 'client' }
+      }
+    });
 
     if (!user) {
       user = await prisma.user.create({
@@ -100,7 +112,7 @@ const googleLogin = async (req, res) => {
     } else {
       // Link Google account if email already exists or just update last login
       user = await prisma.user.update({
-        where: { email },
+        where: { email_role: { email, role: role || 'client' } },
         data: { 
           googleId: user.googleId || googleId,
           lastLogin: new Date()

@@ -31,6 +31,8 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply, showApplyButton = true 
       style: 'currency',
       currency: 'USD',
       maximumFractionDigits: 0,
+      notation: 'compact',
+      compactDisplay: 'short'
     }).format(budget);
   };
 

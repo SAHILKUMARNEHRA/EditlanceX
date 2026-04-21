@@ -43,7 +43,7 @@ const getJobs = async (req, res) => {
         },
         applications: userId ? {
           where: { editorId: userId },
-          select: { id: true }
+          select: { id: true, status: true }
         } : false,
         _count: {
           select: { applications: true },
@@ -58,7 +58,8 @@ const getJobs = async (req, res) => {
       applicationsCount: job._count?.applications || 0,
       videoType: job.videoType || 'Not specified',
       software: job.software || [],
-      applied: userId ? job.applications.length > 0 : false
+      applied: userId ? job.applications.length > 0 : false,
+      applicationStatus: userId && job.applications.length > 0 ? job.applications[0].status : null
     }));
 
     res.json({ jobs: formattedJobs });

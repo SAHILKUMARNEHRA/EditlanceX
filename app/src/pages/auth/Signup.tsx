@@ -127,7 +127,7 @@ const Signup: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">Full Name <span className="text-red-500">*</span></Label>
                 <Input
                   id="name"
                   type="text"
@@ -140,7 +140,7 @@ const Signup: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email">Email address <span className="text-red-500">*</span></Label>
                 <Input
                   id="email"
                   type="email"
@@ -153,7 +153,7 @@ const Signup: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number (WhatsApp preferred)</Label>
+                <Label htmlFor="phone">Phone Number (WhatsApp preferred) <span className="text-red-500">*</span></Label>
                 <Input
                   id="phone"
                   type="tel"
@@ -166,7 +166,7 @@ const Signup: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
                 <Input
                   id="password"
                   type="password"

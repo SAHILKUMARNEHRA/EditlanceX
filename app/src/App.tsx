@@ -21,13 +21,24 @@ import EditorListing from '@/pages/client/EditorListing';
 // Admin Pages
 import AdminDashboard from '@/pages/AdminDashboard';
 
+import { useAuth } from '@/context/AuthContext';
+
+const HomeRedirect = () => {
+  const { isAuthenticated, user } = useAuth();
+  if (isAuthenticated) {
+    if (user?.role === 'editor') return <Navigate to="/editor/dashboard" />;
+    if (user?.role === 'client') return <Navigate to="/client/dashboard" />;
+  }
+  return <Landing />;
+};
+
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<Layout><Landing /></Layout>} />
+          <Route path="/" element={<Layout><HomeRedirect /></Layout>} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 

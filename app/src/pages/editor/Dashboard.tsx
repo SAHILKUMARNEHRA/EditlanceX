@@ -210,15 +210,18 @@ const EditorDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-            Welcome back, {user?.name?.split(' ')[0]}!
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Here's what's happening with your editing career
-          </p>
-        </div>
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 relative overflow-hidden mb-8 group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-rose-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
+            <div className="absolute -bottom-8 left-10 w-64 h-64 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
+            <div className="relative z-10">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-2">
+                Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-600">{user?.name?.split(' ')[0]}!</span>
+              </h1>
+              <p className="text-gray-600 text-lg">
+                Here's what's happening with your editing career today.
+              </p>
+            </div>
+          </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
@@ -365,15 +368,16 @@ const EditorDashboard: React.FC = () => {
                     </CardHeader>
                     <CardContent className="pb-4">
                       <p className="text-sm text-gray-600 line-clamp-2 mb-3">{job.description}</p>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="flex items-center text-green-600 font-medium">
-                          <IndianRupee className="h-4 w-4 mr-1" />
-                          {formatBudget(job.budget)}
+                      <div className="flex items-center justify-between text-sm gap-2">
+                        <span className="flex items-center text-green-600 font-medium min-w-0">
+                          <span className="truncate" title={job.budget.toString()}>
+                            {formatBudget(job.budget)}
+                          </span>
                         </span>
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="text-gray-500 p-0 h-auto hover:bg-transparent"
+                          className="text-gray-500 p-0 h-auto hover:bg-transparent shrink-0"
                           onClick={() => fetchJobDetails(job.id)}
                         >
                           View Details
@@ -459,11 +463,11 @@ const EditorDashboard: React.FC = () => {
             <Button variant="outline" onClick={() => setDetailsDialogOpen(false)} className="flex-1">
               Close
             </Button>
-            {selectedJob && !selectedJob.applied && (
+            {selectedJob && (
               <Button
                 onClick={handleApply}
-                disabled={applying || !profileComplete}
-                className={`flex-1 ${!profileComplete ? 'bg-gray-300' : 'bg-rose-500 hover:bg-rose-600'}`}
+                disabled={applying || !profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED')}
+                className={`flex-1 ${!profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED') ? 'bg-gray-300' : 'bg-rose-500 hover:bg-rose-600'} ${selectedJob.applied && selectedJob.applicationStatus === 'HIRED' ? 'bg-green-500 hover:bg-green-600 text-white' : ''}`}
               >
                 {applying ? (
                   <>
@@ -472,15 +476,17 @@ const EditorDashboard: React.FC = () => {
                   </>
                 ) : !profileComplete ? (
                   'Complete Profile'
+                ) : selectedJob.applied ? (
+                  selectedJob.applicationStatus === 'HIRED' ? (
+                    <><CheckCircle className="h-4 w-4 mr-2" /> Hired</>
+                  ) : selectedJob.applicationStatus === 'NOT_HIRED' ? (
+                    'Apply Again'
+                  ) : (
+                    'Pending'
+                  )
                 ) : (
                   'Apply Now'
                 )}
-              </Button>
-            )}
-            {selectedJob && selectedJob.applied && (
-              <Button disabled className="flex-1 bg-green-500 hover:bg-green-500 opacity-100">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Applied
               </Button>
             )}
           </DialogFooter>

@@ -175,13 +175,19 @@ const EditorJobs: React.FC = () => {
         )}
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Browse Jobs</h1>
-          <p className="mt-2 text-gray-600">Find video editing opportunities that match your skills</p>
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 relative overflow-hidden mb-8 group animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
+          <div className="absolute -bottom-8 left-10 w-64 h-64 bg-yellow-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
+          <div className="relative z-10">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-2">
+              Browse <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-yellow-600">Jobs</span>
+            </h1>
+            <p className="text-gray-600 text-lg">Find video editing opportunities that match your skills and style</p>
+          </div>
         </div>
 
         {/* Filters */}
-        <Card className="mb-6">
+        <Card className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
@@ -247,9 +253,8 @@ const EditorJobs: React.FC = () => {
                   <p className="text-sm text-gray-600 line-clamp-2 mb-4">{job.description}</p>
 
                   <div className="flex items-center justify-between text-sm mb-4">
-                    <div className="flex items-center text-gray-600">
-                      <IndianRupee className="h-4 w-4 mr-1 text-green-600" />
-                      <span className="font-medium">{formatBudget(job.budget)}</span>
+                    <div className="flex items-center text-gray-600 min-w-0">
+                      <span className="font-medium truncate" title={job.budget.toString()}>{formatBudget(job.budget)}</span>
                     </div>
                     <div className="flex items-center text-gray-600">
                       <Calendar className="h-4 w-4 mr-1 text-blue-600" />
@@ -376,11 +381,11 @@ const EditorJobs: React.FC = () => {
               <Button variant="outline" onClick={() => setDetailsDialogOpen(false)} className="flex-1">
                 Close
               </Button>
-              {selectedJob && !selectedJob.applied && (
+              {selectedJob && (
                 <Button
                   onClick={handleApply}
-                  disabled={applying || !profileComplete}
-                  className={`flex-1 ${!profileComplete ? 'bg-gray-300' : 'bg-rose-500 hover:bg-rose-600'}`}
+                  disabled={applying || !profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED')}
+                  className={`flex-1 ${!profileComplete || (selectedJob.applied && selectedJob.applicationStatus !== 'NOT_HIRED') ? 'bg-gray-300' : 'bg-rose-500 hover:bg-rose-600'} ${selectedJob.applied && selectedJob.applicationStatus === 'HIRED' ? 'bg-green-500 hover:bg-green-600 text-white' : ''}`}
                 >
                   {applying ? (
                     <>
@@ -389,15 +394,17 @@ const EditorJobs: React.FC = () => {
                     </>
                   ) : !profileComplete ? (
                     'Complete Profile'
+                  ) : selectedJob.applied ? (
+                    selectedJob.applicationStatus === 'HIRED' ? (
+                      <><CheckCircle className="h-4 w-4 mr-2" /> Hired</>
+                    ) : selectedJob.applicationStatus === 'NOT_HIRED' ? (
+                      'Apply Again'
+                    ) : (
+                      'Pending'
+                    )
                   ) : (
                     'Apply Now'
                   )}
-                </Button>
-              )}
-              {selectedJob && selectedJob.applied && (
-                <Button disabled className="flex-1 bg-green-500 hover:bg-green-500 opacity-100">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Applied
                 </Button>
               )}
             </DialogFooter>

@@ -103,16 +103,21 @@ const EditorListing: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8 animate-in fade-in duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Find Video Editors</h1>
-          <p className="mt-2 text-gray-600">Browse talented editors and find the perfect match for your project</p>
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 relative overflow-hidden mb-8 group animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
+          <div className="absolute -bottom-8 left-10 w-64 h-64 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
+          <div className="relative z-10">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-2">
+              Find Video <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-600">Editors</span>
+            </h1>
+            <p className="text-gray-600 text-lg">Browse talented editors and find the perfect match for your project</p>
+          </div>
         </div>
 
         {/* Filters */}
-        <Card className="mb-6">
+        <Card className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">

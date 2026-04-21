@@ -143,21 +143,25 @@ const ClientDashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-50 py-8 animate-in fade-in duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Welcome Section */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-              Welcome back, {user?.name?.split(' ')[0]}!
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Manage your video editing projects and find talented editors
-            </p>
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 relative overflow-hidden mb-8 group animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
+          <div className="absolute -bottom-8 left-10 w-64 h-64 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700"></div>
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-2">
+                Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">{user?.name?.split(' ')[0]}!</span>
+              </h1>
+              <p className="text-gray-600 text-lg">
+                Manage your video editing projects and find talented editors
+              </p>
+            </div>
+            <Link to="/client/post-job">
+              <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 hover:-translate-y-0.5 transition-all duration-200">
+                <Plus className="mr-2 h-4 w-4" />
+                Post New Job
+              </Button>
+            </Link>
           </div>
-          <Link to="/client/post-job" className="mt-4 sm:mt-0">
-            <Button className="bg-rose-500 hover:bg-rose-600">
-              <Plus className="mr-2 h-4 w-4" />
-              Post New Job
-            </Button>
-          </Link>
         </div>
 
         {/* Stats Cards */}

@@ -147,9 +147,9 @@ const EditorDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8 animate-in fade-in duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Notifications */}
+        <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">{/* Notifications */}
         {hiringAlert && (
           <Alert className={`mb-6 border-2 relative overflow-hidden ${hiringAlert.type === 'HIRED' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
             {hiringAlert.type === 'HIRED' && (
@@ -211,7 +211,7 @@ const EditorDashboard: React.FC = () => {
 
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
             Welcome back, {user?.name?.split(' ')[0]}!
           </h1>
           <p className="mt-2 text-gray-600">
@@ -220,8 +220,8 @@ const EditorDashboard: React.FC = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Available Jobs</CardTitle>
               <Briefcase className="h-4 w-4 text-rose-500" />
@@ -255,9 +255,8 @@ const EditorDashboard: React.FC = () => {
           </Card>
         </div>
 
-        {/* Jobs Tabs */}
-        <Tabs defaultValue="available" className="w-full">
-          <TabsList className="mb-6">
+        {/* Jobs Tabs */}<div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+          <Tabs defaultValue="available" className="w-full">          <TabsList className="mb-6">
             <TabsTrigger value="available">Available Jobs</TabsTrigger>
             <TabsTrigger value="applied">Applied Jobs</TabsTrigger>
           </TabsList>

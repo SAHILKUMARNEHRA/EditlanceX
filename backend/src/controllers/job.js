@@ -159,4 +159,58 @@ const getPostedJobs = async (req, res) => {
   }
 };
 
-module.exports = { createJob, getJobs, getJobById, getPostedJobs };
+const deleteJob = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.email !== 'sk.nehra2005@gmail.com') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const { id } = req.params;
+
+    // Delete related applications first
+    await prisma.application.deleteMany({ where: { jobId: id } });
+    
+    // Delete the job
+    await prisma.job.delete({ where: { id } });
+
+    res.json({ message: 'Job deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting job:', error);
+    res.status(500).json({ error: 'Error deleting job' });
+  }
+};
+
+const getAdminJobs = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.email !== 'sk.nehra2005@gmail.com') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const jobs = await prisma.job.findMany({
+      include: {
+        client: {
+          select: { name: true, email: true },
+        },
+        _count: {
+          select: { applications: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const formattedJobs = jobs.map(job => ({
+      ...job,
+      clientName: job.client?.name || 'Unknown Client',
+      applicationsCount: job._count?.applications || 0,
+      videoType: job.videoType || 'Not specified',
+      software: job.software || [],
+    }));
+
+    res.json({ jobs: formattedJobs });
+  } catch (error) {
+    console.error('Error fetching admin jobs:', error);
+    res.status(500).json({ error: 'Error fetching jobs' });
+  }
+};
+
+module.exports = { createJob, getJobs, getJobById, getPostedJobs, deleteJob, getAdminJobs };

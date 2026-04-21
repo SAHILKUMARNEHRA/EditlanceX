@@ -17,11 +17,16 @@ const Landing: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-rose-50 to-pink-100 py-20 lg:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto">
+      <section className="relative bg-gradient-to-br from-rose-50 to-pink-100 py-20 lg:py-32 overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute top-20 left-10 w-64 h-64 bg-rose-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-20 right-10 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-40 w-64 h-64 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
             <div className="flex justify-center mb-6">
-              <div className="bg-rose-500 p-4 rounded-2xl">
+              <div className="bg-rose-500 p-4 rounded-2xl transform hover:scale-110 transition-transform duration-300 shadow-xl shadow-rose-500/30">
                 <Film className="h-12 w-12 text-white" />
               </div>
             </div>
@@ -80,9 +85,9 @@ const Landing: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center hover:shadow-lg transition-shadow">
+            <Card className="text-center hover:-translate-y-2 hover:shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
               <CardContent className="pt-8 pb-8">
-                <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                   <Users className="h-8 w-8 text-rose-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">1. Create Account</h3>
@@ -92,9 +97,9 @@ const Landing: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow">
+            <Card className="text-center hover:-translate-y-2 hover:shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
               <CardContent className="pt-8 pb-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                   <Briefcase className="h-8 w-8 text-blue-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">2. Post or Apply</h3>
@@ -104,9 +109,9 @@ const Landing: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow">
+            <Card className="text-center hover:-translate-y-2 hover:shadow-xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
               <CardContent className="pt-8 pb-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                   <CheckCircle className="h-8 w-8 text-green-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">3. Collaborate</h3>
@@ -120,10 +125,10 @@ const Landing: React.FC = () => {
       </section>
 
       {/* For Editors */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
+            <div className="animate-in fade-in slide-in-from-left-8 duration-1000">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                 For Video Editors
               </h2>
@@ -153,23 +158,23 @@ const Landing: React.FC = () => {
                 </Link>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white p-6 rounded-xl shadow-sm">
+            <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-right-8 duration-1000">
+              <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 duration-300">
                 <Edit3 className="h-8 w-8 text-rose-500 mb-4" />
                 <h4 className="font-semibold text-gray-900 mb-2">Video Editing</h4>
                 <p className="text-sm text-gray-600">Wedding, corporate, YouTube & more</p>
               </div>
-              <div className="bg-white p-6 rounded-xl shadow-sm mt-8">
+              <div className="bg-white p-6 rounded-xl shadow-sm mt-8 hover:shadow-md transition-shadow hover:-translate-y-1 duration-300">
                 <Play className="h-8 w-8 text-blue-500 mb-4" />
                 <h4 className="font-semibold text-gray-900 mb-2">Color Grading</h4>
                 <p className="text-sm text-gray-600">Professional color correction</p>
               </div>
-              <div className="bg-white p-6 rounded-xl shadow-sm">
+              <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 duration-300">
                 <Star className="h-8 w-8 text-yellow-500 mb-4" />
                 <h4 className="font-semibold text-gray-900 mb-2">Motion Graphics</h4>
                 <p className="text-sm text-gray-600">After Effects & animation</p>
               </div>
-              <div className="bg-white p-6 rounded-xl shadow-sm mt-8">
+              <div className="bg-white p-6 rounded-xl shadow-sm mt-8 hover:shadow-md transition-shadow hover:-translate-y-1 duration-300">
                 <Upload className="h-8 w-8 text-green-500 mb-4" />
                 <h4 className="font-semibold text-gray-900 mb-2">Social Media</h4>
                 <p className="text-sm text-gray-600">Reels, TikToks & shorts</p>
@@ -180,11 +185,11 @@ const Landing: React.FC = () => {
       </section>
 
       {/* For Clients */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1">
-              <div className="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-8 text-white">
+            <div className="order-2 lg:order-1 animate-in fade-in slide-in-from-left-8 duration-1000">
+              <div className="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-8 text-white shadow-xl shadow-rose-500/20 hover:scale-[1.02] transition-transform duration-300">
                 <h3 className="text-2xl font-bold mb-4">Find the Perfect Editor</h3>
                 <p className="text-rose-100 mb-6">
                   Browse through our community of talented video editors and find the perfect match for your project.
@@ -204,7 +209,7 @@ const Landing: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="order-1 lg:order-2">
+            <div className="order-1 lg:order-2 animate-in fade-in slide-in-from-right-8 duration-1000">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                 For Clients
               </h2>

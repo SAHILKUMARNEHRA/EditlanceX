@@ -140,12 +140,12 @@ const ClientDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8 animate-in fade-in duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Welcome Section */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
               Welcome back, {user?.name?.split(' ')[0]}!
             </h1>
             <p className="mt-2 text-gray-600">
@@ -161,8 +161,8 @@ const ClientDashboard: React.FC = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Posted Jobs</CardTitle>
               <Briefcase className="h-4 w-4 text-rose-500" />
@@ -199,7 +199,7 @@ const ClientDashboard: React.FC = () => {
         </div>
 
         {/* Posted Jobs */}
-        <div className="mb-6">
+        <div className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Your Posted Jobs</h2>
             <Link to="/client/post-job">

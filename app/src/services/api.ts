@@ -158,6 +158,25 @@ export const getAdminUsers = async () => {
   return fetchWithAuth('/admin/users');
 };
 
+export const deleteUser = async (id: string) => {
+  return fetchWithAuth(`/admin/users/${id}`, { method: 'DELETE' });
+};
+
+export const resetUserPassword = async (id: string, newPassword: string) => {
+  return fetchWithAuth(`/admin/users/${id}/reset-password`, {
+    method: 'POST',
+    body: JSON.stringify({ newPassword }),
+  });
+};
+
+export const getAdminJobs = async () => {
+  return fetchWithAuth('/admin/jobs');
+};
+
+export const deleteJob = async (id: string) => {
+  return fetchWithAuth(`/admin/jobs/${id}`, { method: 'DELETE' });
+};
+
 export default {
   login,
   signup,

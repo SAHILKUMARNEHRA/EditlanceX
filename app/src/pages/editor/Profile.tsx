@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, X, Camera, Briefcase, Link as LinkIcon, PartyPopper, XCircle, ArrowLeft, Clock } from 'lucide-react';
+import { Loader2, X, Camera, Briefcase, Link as LinkIcon, ArrowLeft, Clock } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 

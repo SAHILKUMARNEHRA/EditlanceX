@@ -1,0 +1,4 @@
+[main 681fea9] Fix router redirect for unauthenticated users, fix vercel routing via base url, fix hiring popup layout, add tab logo, and optimize UI interactions
+ 10 files changed, 145 insertions(+), 92 deletions(-)
+ create mode 100644 git_fix_routing.js
+ create mode 100644 git_fix_url.txt

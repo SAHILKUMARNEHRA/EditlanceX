@@ -1,6 +1,0 @@
-[main fba4d37] Fix black screen on new client signup by replacing recharts PieChart with lucide PieChartIcon for empty state, and handle missing names
- 4 files changed, 41 insertions(+)
- create mode 100644 app/test-pie.js
- create mode 100644 build_log.txt
- create mode 100644 push_fix.js
- create mode 100644 push_fix2.js

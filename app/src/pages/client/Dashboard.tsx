@@ -125,14 +125,6 @@ const ClientDashboard: React.FC = () => {
     }).format(budget);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
-      </div>
-    );
-  }
-
   const activeJobs = jobs.filter(j => j.status === 'OPEN');
   const totalApplications = jobs.reduce((acc, job) => acc + (job.applications?.length || 0), 0);
 
@@ -164,6 +156,14 @@ const ClientDashboard: React.FC = () => {
       hiredEditors
     };
   }, [jobs]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] py-8 animate-in fade-in duration-500 text-white">

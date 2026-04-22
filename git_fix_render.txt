@@ -1,0 +1,5 @@
+[main 5e4348b] Fix backend production deployment and error handling
+ 5 files changed, 44 insertions(+), 7 deletions(-)
+ create mode 100644 backend/test_backend.js
+ create mode 100644 git_fix_render.js
+ create mode 100644 git_fix_vercel.txt

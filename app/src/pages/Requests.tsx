@@ -142,7 +142,7 @@ const Requests: React.FC = () => {
                           ) : (
                             <div className="text-center w-full">
                               <div className="inline-flex items-center justify-center p-3 bg-yellow-500/10 rounded-full mb-3">
-                                <Loader2 className="h-6 w-6 text-yellow-500 animate-spin" />
+                                <Clock className="h-6 w-6 text-yellow-500" />
                               </div>
                               <p className="font-semibold text-yellow-500">Pending Response</p>
                             </div>
@@ -209,7 +209,7 @@ const Requests: React.FC = () => {
                           }`}>
                             {app.status === 'HIRED' ? <CheckCircle className="h-8 w-8 text-green-500" /> : 
                              app.status === 'NOT_HIRED' ? <XCircle className="h-8 w-8 text-red-500" /> : 
-                             <Loader2 className="h-8 w-8 text-yellow-500 animate-spin" />}
+                             <Clock className="h-8 w-8 text-yellow-500" />}
                           </div>
                           <p className={`font-bold text-lg ${
                             app.status === 'HIRED' ? 'text-green-500' : 

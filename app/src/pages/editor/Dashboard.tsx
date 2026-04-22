@@ -119,14 +119,36 @@ const EditorDashboard: React.FC = () => {
     if (!selectedJob) return;
 
     setApplying(true);
+    // Optimistic UI Update
+    const previousJob = { ...selectedJob };
+    const previousAvailable = [...availableJobs];
+
     try {
-      await api.applyJob(selectedJob.id);
-      await fetchJobs();
-      setDetailsDialogOpen(false);
+      setAvailableJobs(availableJobs.map(j => j.id === selectedJob.id ? { ...j, applied: true, applicationStatus: 'PENDING' } : j));
       setSelectedJob(null);
+      setDetailsDialogOpen(false);
+
+      await api.applyJob(selectedJob.id);
+      // fetchJobs() can happen silently in the background without blocking the UI
+      api.getJobs().then(data => {
+        let jobs = data.jobs || [];
+        jobs.sort((a: Job, b: Job) => {
+          const isAExpired = new Date(a.deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
+          const isBExpired = new Date(b.deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
+          if (isAExpired && !isBExpired) return 1;
+          if (!isAExpired && isBExpired) return -1;
+          return 0;
+        });
+        setAvailableJobs(jobs);
+      });
+      api.getAppliedJobs().then(data => setAppliedJobs(data.jobs || []));
+      
     } catch (err: any) {
       console.error('Failed to apply for job:', err);
       setError(err.message || 'Failed to apply for job');
+      // Revert on error
+      setAvailableJobs(previousAvailable);
+      setSelectedJob(previousJob);
     } finally {
       setApplying(false);
     }
@@ -161,47 +183,36 @@ const EditorDashboard: React.FC = () => {
         <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
           {/* Notifications */}
           {hiringAlert && (
-          <Alert className={`mb-8 border relative overflow-hidden p-6 rounded-3xl shadow-2xl ${hiringAlert.type === 'HIRED' ? 'bg-gradient-to-br from-green-900/40 to-[#111] border-green-500/30' : 'bg-gradient-to-br from-red-900/40 to-[#111] border-red-500/30'}`}>
-            <div className="absolute right-0 top-0 w-1/3 h-full opacity-30 pointer-events-none">
-              <img 
-                src={hiringAlert.type === 'HIRED' 
-                  ? 'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=3d%20render%20of%20golden%20confetti%20and%20party%20popper%20celebration%20cinematic%20lighting&image_size=landscape_16_9' 
-                  : 'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=3d%20render%20of%20closed%20door%20with%20subtle%20red%20neon%20light%20cinematic&image_size=landscape_16_9'} 
-                alt="Background" 
-                className="w-full h-full object-cover mix-blend-screen"
-              />
-            </div>
-            <div className="relative z-10 flex items-start gap-4">
-              {hiringAlert.type === 'HIRED' ? (
-                <div className="bg-green-500/20 p-3 rounded-2xl border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.3)]">
-                  <PartyPopper className="h-8 w-8 text-green-400" />
-                </div>
-              ) : (
-                <div className="bg-red-500/20 p-3 rounded-2xl border border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.3)]">
-                  <XCircle className="h-8 w-8 text-red-400" />
-                </div>
-              )}
-              <div className="flex-1">
-                <AlertTitle className={`text-2xl font-extrabold tracking-tight mb-2 ${hiringAlert.type === 'HIRED' ? 'text-green-400' : 'text-red-400'}`}>
+          <Alert className={`mb-8 border p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${hiringAlert.type === 'HIRED' ? 'bg-gradient-to-r from-green-900/40 to-[#111] border-green-500/30' : 'bg-gradient-to-r from-red-900/40 to-[#111] border-red-500/30'}`}>
+            <div className="flex items-center gap-4">
+              <div className="relative h-12 w-12 rounded-full overflow-hidden shrink-0 border-2 border-white/10 shadow-lg">
+                <img 
+                  src={hiringAlert.type === 'HIRED' 
+                    ? 'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=3d%20render%20of%20golden%20confetti%20and%20party%20popper%20celebration%20cinematic%20lighting&image_size=square' 
+                    : 'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=3d%20render%20of%20closed%20door%20with%20subtle%20red%20neon%20light%20cinematic&image_size=square'} 
+                  alt="Status" 
+                  className="w-full h-full object-cover mix-blend-screen"
+                />
+              </div>
+              <div>
+                <AlertTitle className={`text-lg font-bold mb-1 tracking-tight ${hiringAlert.type === 'HIRED' ? 'text-green-400' : 'text-red-400'}`}>
                   {hiringAlert.type === 'HIRED' ? 'Congratulations! You Got the Job! 🎉' : 'Application Update'}
                 </AlertTitle>
-                <AlertDescription className="text-gray-300 text-lg flex items-center justify-between">
-                  <span>
-                    {hiringAlert.type === 'HIRED' 
-                      ? `You have been officially hired for "${hiringAlert.jobTitle}". The client will contact you shortly.`
-                      : `The application for "${hiringAlert.jobTitle}" was not successful this time. Keep applying!`}
-                  </span>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="ml-4 h-10 px-6 rounded-full border-white/20 hover:bg-white/10 text-white shadow-lg backdrop-blur-md" 
-                    onClick={() => setHiringAlert(null)}
-                  >
-                    Dismiss
-                  </Button>
+                <AlertDescription className="text-gray-300 text-sm">
+                  {hiringAlert.type === 'HIRED' 
+                    ? `You have been officially hired for "${hiringAlert.jobTitle}". The client will contact you shortly.`
+                    : `Your application for "${hiringAlert.jobTitle}" was not successful. Keep applying!`}
                 </AlertDescription>
               </div>
             </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="rounded-full border-white/20 hover:bg-white/10 text-white shadow-lg backdrop-blur-md shrink-0 w-full sm:w-auto" 
+              onClick={() => setHiringAlert(null)}
+            >
+              Dismiss
+            </Button>
           </Alert>
         )}
 

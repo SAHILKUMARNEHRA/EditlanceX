@@ -1,0 +1,7 @@
+[main c9cc52c] Fix API connection by hardcoding production Render URL
+ 6 files changed, 35 insertions(+), 3 deletions(-)
+ create mode 100644 app/.env.production
+ create mode 100644 find_url.js
+ create mode 100644 git_fix_render.txt
+ create mode 100644 git_fix_url.js
+ create mode 100644 render_url.txt

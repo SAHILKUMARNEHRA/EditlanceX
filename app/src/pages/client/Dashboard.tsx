@@ -74,18 +74,41 @@ const ClientDashboard: React.FC = () => {
   const handleUpdateStatus = async (status: 'HIRED' | 'NOT_HIRED') => {
     if (!selectedApplication || !selectedJob) return;
 
+    // Optimistic UI Update
+    const previousApp = { ...selectedApplication };
+    const previousJob = { ...selectedJob };
+    const previousJobs = [...jobs];
+
     try {
       setIsUpdatingStatus(true);
+      // Immediately update local state
+      setSelectedApplication({ ...selectedApplication, status });
+      setSelectedJob({
+        ...selectedJob,
+        applications: selectedJob.applications?.map((app: any) => 
+          app.id === selectedApplication.id ? { ...app, status } : app
+        )
+      });
+      setJobs(jobs.map(j => 
+        j.id === selectedJob.id 
+          ? { 
+              ...j, 
+              applications: j.applications?.map((app: any) => 
+                app.id === selectedApplication.id ? { ...app, status } : app
+              ) 
+            } 
+          : j
+      ));
+
+      // Make API call in background
       await api.updateApplicationStatus(selectedApplication.id, status);
       
-      setSelectedApplication({ ...selectedApplication, status });
-      
-      const updatedJobDetails = await api.getJobById(selectedJob.id);
-      setSelectedJob(updatedJobDetails);
-      
-      fetchJobs();
     } catch (err: any) {
       console.error('Failed to update status:', err);
+      // Revert on error
+      setSelectedApplication(previousApp);
+      setSelectedJob(previousJob);
+      setJobs(previousJobs);
     } finally {
       setIsUpdatingStatus(false);
     }

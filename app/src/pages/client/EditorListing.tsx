@@ -87,18 +87,19 @@ const EditorListing: React.FC = () => {
     if (!selectedEditor) return;
 
     setHiring(true);
+    // Optimistic Update
+    const previousEditors = [...editors];
     try {
-      await api.sendDirectRequest(selectedEditor.id);
-      
-      // Update local state
       setEditors(editors.map(ed => 
         ed.id === selectedEditor.id ? { ...ed, requestStatus: 'PENDING' } : ed
       ));
-      
       setHireDialogOpen(false);
-      setSelectedEditor(null);
+
+      await api.sendDirectRequest(selectedEditor.id);
     } catch (err: any) {
       console.error('Failed to send request:', err);
+      // Revert on error
+      setEditors(previousEditors);
     } finally {
       setHiring(false);
     }

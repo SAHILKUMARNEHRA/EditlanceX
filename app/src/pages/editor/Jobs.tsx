@@ -119,15 +119,26 @@ const EditorJobs: React.FC = () => {
     if (!selectedJob) return;
 
     setApplying(true);
+    // Optimistic Update
+    const previousJob = { ...selectedJob };
+    const previousJobs = [...jobs];
+    const previousFilteredJobs = [...filteredJobs];
+
     try {
+      setSelectedJob({ ...selectedJob, applied: true, applicationStatus: 'PENDING' });
+      setJobs(jobs.map(j => j.id === selectedJob.id ? { ...j, applied: true, applicationStatus: 'PENDING' } : j));
+      setFilteredJobs(filteredJobs.map(j => j.id === selectedJob.id ? { ...j, applied: true, applicationStatus: 'PENDING' } : j));
+
       await api.applyJob(selectedJob.id);
       
-      const updatedJob = await api.getJobById(selectedJob.id);
-      setSelectedJob(updatedJob);
-      
-      setJobs(jobs.map(j => j.id === selectedJob.id ? { ...j, applied: true, applicationStatus: 'PENDING' } : j));
+      // Refresh cleanly in background
+      api.getJobById(selectedJob.id).then(updatedJob => setSelectedJob(updatedJob));
     } catch (err: any) {
       console.error('Failed to apply for job:', err);
+      // Revert on error
+      setSelectedJob(previousJob);
+      setJobs(previousJobs);
+      setFilteredJobs(previousFilteredJobs);
     } finally {
       setApplying(false);
     }

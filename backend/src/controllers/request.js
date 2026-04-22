@@ -65,7 +65,7 @@ const getClientRequests = async (req, res) => {
     res.json({ directRequests, jobApplications });
   } catch (error) {
     console.error('Error fetching client requests:', error);
-    res.status(500).json({ error: 'Error fetching requests' });
+    res.status(500).json({ error: 'Error fetching client requests: ' + error.message });
   }
 };
 
@@ -92,7 +92,7 @@ const getEditorRequests = async (req, res) => {
     res.json({ directRequests, jobApplications });
   } catch (error) {
     console.error('Error fetching editor requests:', error);
-    res.status(500).json({ error: 'Error fetching requests' });
+    res.status(500).json({ error: 'Error fetching editor requests: ' + error.message });
   }
 };
 

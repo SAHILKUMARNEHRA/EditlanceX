@@ -1,5 +1,7 @@
 # EditlanceX
 
+**Live Deployment:** [https://editlancex.vercel.app/](https://editlancex.vercel.app/)
+
 EditlanceX is a comprehensive platform designed for video editors and clients to collaborate effectively. It provides a structured environment for posting editing jobs, managing applications, and building editor portfolios.
 
 ## Key Features

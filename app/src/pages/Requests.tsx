@@ -16,11 +16,16 @@ const Requests: React.FC = () => {
 
   useEffect(() => {
     fetchRequests();
+    const interval = setInterval(fetchRequests, 10000); // Poll every 10s
+    return () => clearInterval(interval);
   }, []);
 
   const fetchRequests = async () => {
     try {
-      setIsLoading(true);
+      // Only set loading true on initial fetch to avoid flickering
+      if (directRequests.length === 0 && jobApplications.length === 0) {
+        setIsLoading(true);
+      }
       let data;
       if (user?.role === 'client') {
         data = await api.getClientRequests();
@@ -30,7 +35,11 @@ const Requests: React.FC = () => {
       setDirectRequests(data.directRequests || []);
       setJobApplications(data.jobApplications || []);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch requests');
+      console.error('Failed to fetch requests:', err);
+      // Only set error if we don't have existing data to show
+      if (directRequests.length === 0 && jobApplications.length === 0) {
+        setError(err.message || 'Failed to fetch requests');
+      }
     } finally {
       setIsLoading(false);
     }

@@ -5,7 +5,8 @@ import * as api from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Briefcase, CheckCircle, Users, Eye, MoreVertical, MapPin } from 'lucide-react';
+import { Loader2, Plus, Briefcase, CheckCircle, Users, Eye, MoreVertical, MapPin, XCircle, Clock } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -135,6 +136,35 @@ const ClientDashboard: React.FC = () => {
   const activeJobs = jobs.filter(j => j.status === 'OPEN');
   const totalApplications = jobs.reduce((acc, job) => acc + (job.applications?.length || 0), 0);
 
+  const hiringStats = React.useMemo(() => {
+    let hired = 0;
+    let notHired = 0;
+    let pending = 0;
+    const hiredEditors: any[] = [];
+
+    jobs.forEach(job => {
+      job.applications?.forEach(app => {
+        if (app.status === 'HIRED') {
+          hired++;
+          hiredEditors.push({ ...app.editor, jobTitle: job.title });
+        } else if (app.status === 'NOT_HIRED') {
+          notHired++;
+        } else {
+          pending++;
+        }
+      });
+    });
+
+    return {
+      data: [
+        { name: 'Hired', value: hired, color: '#22c55e' },
+        { name: 'Declined', value: notHired, color: '#ef4444' },
+        { name: 'Pending', value: pending, color: '#eab308' }
+      ].filter(d => d.value > 0),
+      hiredEditors
+    };
+  }, [jobs]);
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] py-8 animate-in fade-in duration-500 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -169,7 +199,7 @@ const ClientDashboard: React.FC = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
           <Card className="bg-[#111] border-white/5 hover:border-white/10 hover:shadow-2xl transition-all duration-300 group">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-400">Total Jobs Posted</CardTitle>
@@ -195,6 +225,84 @@ const ClientDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-white">{totalApplications}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Hiring Graph & Recently Hired */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+          <Card className="bg-[#111] border-white/5 col-span-1 lg:col-span-1 hover:border-white/10 transition-all duration-300">
+            <CardHeader className="pb-2 border-b border-white/5">
+              <CardTitle className="text-lg font-bold text-white">Application Stats</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center justify-center p-6 h-[300px]">
+              {hiringStats.data.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={hiringStats.data}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {hiringStats.data.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="rgba(0,0,0,0)" />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#111', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
+                      itemStyle={{ color: '#fff' }}
+                    />
+                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                  <PieChart className="h-16 w-16 mb-4 opacity-20" />
+                  <p>No applications yet</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-[#111] border-white/5 col-span-1 lg:col-span-2 hover:border-white/10 transition-all duration-300 flex flex-col">
+            <CardHeader className="pb-4 border-b border-white/5">
+              <CardTitle className="text-lg font-bold text-white">Recently Hired Editors</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-y-auto p-0 max-h-[300px] custom-scrollbar">
+              {hiringStats.hiredEditors.length > 0 ? (
+                <div className="divide-y divide-white/5">
+                  {hiringStats.hiredEditors.map((editor, i) => (
+                    <div key={i} className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-green-500 to-emerald-700 flex items-center justify-center text-white font-bold shadow-lg shrink-0">
+                          {editor.name?.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-bold text-white">{editor.name}</p>
+                          <p className="text-xs text-gray-400 mt-1 flex items-center">
+                            <Briefcase className="h-3 w-3 mr-1" />
+                            Hired for: <span className="text-green-400 ml-1 font-medium">{editor.jobTitle}</span>
+                          </p>
+                        </div>
+                      </div>
+                      <Link to={`/editor/${editor.id}`}>
+                        <Button variant="outline" size="sm" className="rounded-full border-white/10 text-gray-300 hover:text-white hover:bg-white/10 h-8">
+                          View Profile
+                        </Button>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full py-12 text-gray-500">
+                  <Users className="h-12 w-12 mb-4 opacity-20" />
+                  <p>You haven't hired anyone yet</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

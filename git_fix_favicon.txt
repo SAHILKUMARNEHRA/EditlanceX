@@ -1,0 +1,4 @@
+[main 791540d] Update favicon to a colorful SVG, and make pending response icon static
+ 4 files changed, 17 insertions(+), 3 deletions(-)
+ create mode 100644 git_fix_favicon.js
+ create mode 100644 git_fix_imports.txt

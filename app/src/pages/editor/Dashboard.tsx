@@ -188,10 +188,10 @@ const EditorDashboard: React.FC = () => {
               <div className="relative h-12 w-12 rounded-full overflow-hidden shrink-0 border-2 border-white/10 shadow-lg">
                 <img 
                   src={hiringAlert.type === 'HIRED' 
-                    ? 'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=3d%20render%20of%20golden%20confetti%20and%20party%20popper%20celebration%20cinematic%20lighting&image_size=square' 
-                    : 'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=3d%20render%20of%20closed%20door%20with%20subtle%20red%20neon%20light%20cinematic&image_size=square'} 
+                    ? 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=200&auto=format&fit=crop' 
+                    : 'https://images.unsplash.com/photo-1594322436404-5a0526db4d13?q=80&w=200&auto=format&fit=crop'} 
                   alt="Status" 
-                  className="w-full h-full object-cover mix-blend-screen"
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div>

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import * as api from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -11,12 +12,47 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Film, User, LogOut, LayoutDashboard, ShieldCheck, Bell } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const [pendingCount, setPendingCount] = useState(0);
 
   const isAdmin = user?.role === 'admin' || user?.email === 'sk.nehra2005@gmail.com';
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+
+    const fetchPendingCount = async () => {
+      try {
+        let data;
+        if (user.role === 'client') {
+          data = await api.getClientRequests();
+        } else if (user.role === 'editor') {
+          data = await api.getEditorRequests();
+        } else {
+          return;
+        }
+
+        let count = 0;
+        if (user.role === 'editor' && data.directRequests) {
+          count += data.directRequests.filter((req: any) => req.status === 'PENDING').length;
+        }
+        if (user.role === 'client' && data.jobApplications) {
+          count += data.jobApplications.filter((app: any) => app.status === 'PENDING').length;
+        }
+
+        setPendingCount(count);
+      } catch (err) {
+        console.error('Failed to fetch pending count:', err);
+      }
+    };
+
+    fetchPendingCount();
+    const interval = setInterval(fetchPendingCount, 10000); // Poll every 10 seconds
+    return () => clearInterval(interval);
+  }, [isAuthenticated, user]);
 
   const handleLogout = () => {
     logout();
@@ -43,9 +79,16 @@ const Navbar: React.FC = () => {
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <Link to="/requests">
+                <Link to="/requests" className="relative">
                   <Button variant="ghost" size="sm" className="hidden sm:flex text-gray-300 hover:text-white hover:bg-white/10">
-                    <Bell className="h-4 w-4 mr-2" />
+                    <div className="relative">
+                      <Bell className="h-4 w-4 mr-2" />
+                      {pendingCount > 0 && (
+                        <Badge className="absolute -top-3 -right-3 h-5 w-5 flex items-center justify-center p-0 bg-rose-600 text-[10px] text-white border-none animate-in zoom-in">
+                          {pendingCount > 99 ? '99+' : pendingCount}
+                        </Badge>
+                      )}
+                    </div>
                     Requests
                   </Button>
                 </Link>
@@ -83,9 +126,16 @@ const Navbar: React.FC = () => {
                     </div>
                     <DropdownMenuSeparator className="bg-white/10" />
                     <DropdownMenuItem asChild className="focus:bg-white/10 focus:text-white cursor-pointer">
-                      <Link to="/requests" className="sm:hidden">
-                        <Bell className="mr-2 h-4 w-4" />
-                        Requests
+                      <Link to="/requests" className="sm:hidden flex items-center justify-between w-full">
+                        <div className="flex items-center">
+                          <Bell className="mr-2 h-4 w-4" />
+                          Requests
+                        </div>
+                        {pendingCount > 0 && (
+                          <Badge className="bg-rose-600 text-white text-[10px] h-5 min-w-[20px] flex items-center justify-center p-0 border-none">
+                            {pendingCount > 99 ? '99+' : pendingCount}
+                          </Badge>
+                        )}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="focus:bg-white/10 focus:text-white cursor-pointer">

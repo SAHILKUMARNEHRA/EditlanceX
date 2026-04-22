@@ -25,7 +25,7 @@ const EditorCard: React.FC<EditorCardProps> = ({ editor, onHire }) => {
           <Avatar className="h-16 w-16">
             <AvatarImage src={editor.avatar} alt={editor.name} />
             <AvatarFallback className="bg-rose-100 text-rose-600 text-xl">
-              {editor.name.charAt(0).toUpperCase()}
+              {editor.name ? editor.name.charAt(0).toUpperCase() : 'U'}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">

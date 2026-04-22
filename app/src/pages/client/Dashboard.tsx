@@ -5,7 +5,7 @@ import * as api from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Briefcase, CheckCircle, Users, Eye, MoreVertical, MapPin } from 'lucide-react';
+import { Loader2, Plus, Briefcase, CheckCircle, Users, Eye, MoreVertical, MapPin, PieChart as PieChartIcon, User } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import {
   DropdownMenu,
@@ -261,7 +261,7 @@ const ClientDashboard: React.FC = () => {
                 </ResponsiveContainer>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                  <PieChart className="h-16 w-16 mb-4 opacity-20" />
+                  <PieChartIcon className="h-16 w-16 mb-4 opacity-20" />
                   <p>No applications yet</p>
                 </div>
               )}
@@ -279,7 +279,7 @@ const ClientDashboard: React.FC = () => {
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
                       <div className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-green-500 to-emerald-700 flex items-center justify-center text-white font-bold shadow-lg shrink-0">
-                          {editor.name?.charAt(0).toUpperCase()}
+                          {editor.name ? editor.name.charAt(0).toUpperCase() : <User className="h-6 w-6" />}
                         </div>
                         <div>
                           <p className="font-bold text-white">{editor.name}</p>

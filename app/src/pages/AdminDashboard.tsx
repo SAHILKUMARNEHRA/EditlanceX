@@ -256,7 +256,7 @@ const AdminDashboard: React.FC = () => {
                           <TableCell>
                             <Badge variant={u.role === 'admin' ? 'default' : 'secondary'} 
                                    className={u.role === 'editor' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : u.role === 'client' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-purple-500/10 text-purple-400 border-purple-500/20'}>
-                              {u.role.toUpperCase()}
+                              {u.role ? u.role.toUpperCase() : 'USER'}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-gray-300">{u.phone || 'N/A'}</TableCell>

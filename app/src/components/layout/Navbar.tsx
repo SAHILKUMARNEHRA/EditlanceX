@@ -112,7 +112,7 @@ const Navbar: React.FC = () => {
                       <Avatar className="h-10 w-10 border border-white/10">
                         <AvatarImage src={user?.avatar} alt={user?.name} />
                         <AvatarFallback className="bg-rose-500/20 text-rose-400">
-                          {user?.name?.charAt(0).toUpperCase()}
+                          {user?.name ? user.name.charAt(0).toUpperCase() : <User className="h-5 w-5" />}
                         </AvatarFallback>
                       </Avatar>
                     </Button>

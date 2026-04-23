@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
     };
 
     fetchPendingCount();
-    const interval = setInterval(fetchPendingCount, 10000); // Poll every 10 seconds
+    const interval = setInterval(fetchPendingCount, 30000); // Poll every 30 seconds to save server load
     return () => clearInterval(interval);
   }, [isAuthenticated, user]);
 

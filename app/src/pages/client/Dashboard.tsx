@@ -397,7 +397,7 @@ const ClientDashboard: React.FC = () => {
                               onClick={async () => {
                                 try {
                                   await api.updateJobStatus(job.id, 'CLOSED');
-                                  fetchJobs();
+                                  fetchDashboardData();
                                 } catch (err) {
                                   console.error('Failed to close job');
                                 }
@@ -412,7 +412,7 @@ const ClientDashboard: React.FC = () => {
                                 if (window.confirm('Are you sure you want to delete this job?')) {
                                   try {
                                     await api.deleteJob(job.id);
-                                    fetchJobs();
+                                    fetchDashboardData();
                                   } catch (err) {
                                     console.error('Failed to delete job');
                                   }

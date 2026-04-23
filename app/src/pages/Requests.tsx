@@ -34,7 +34,7 @@ const Requests: React.FC = () => {
 
   useEffect(() => {
     fetchRequests();
-    const interval = setInterval(fetchRequests, 10000); // Poll every 10s
+    const interval = setInterval(fetchRequests, 30000); // Poll every 30s instead of 10s to save server load
     return () => clearInterval(interval);
   }, []);
 

@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const helmet = require('helmet');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 
 const authRoutes = require('./routes/auth');
 const editorRoutes = require('./routes/editor');
@@ -13,7 +16,20 @@ const userRoutes = require('./routes/user');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Security and Performance Middleware
+app.use(helmet()); // Sets secure HTTP headers
+app.use(compression()); // Compresses response bodies (gzip)
+
+// Rate Limiting: Max 200 requests per 15 minutes per IP
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, 
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests from this IP, please try again after 15 minutes' }
+});
+app.use('/api', limiter);
+
 app.use(cors({
   origin: '*', // Allow all origins during initial deployment debugging
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

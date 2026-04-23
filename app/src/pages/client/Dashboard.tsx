@@ -38,6 +38,7 @@ interface Job {
 const ClientDashboard: React.FC = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [directRequests, setDirectRequests] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [, setError] = useState('');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -47,16 +48,20 @@ const ClientDashboard: React.FC = () => {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   useEffect(() => {
-    fetchJobs();
+    fetchDashboardData();
   }, []);
 
-  const fetchJobs = async () => {
+  const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
-      const data = await api.getPostedJobs();
-      setJobs(data.jobs || []);
+      const [jobsData, requestsData] = await Promise.all([
+        api.getPostedJobs(),
+        api.getClientRequests()
+      ]);
+      setJobs(jobsData.jobs || []);
+      setDirectRequests(requestsData.directRequests || []);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch jobs');
+      setError(err.message || 'Failed to fetch dashboard data');
     } finally {
       setIsLoading(false);
     }
@@ -134,17 +139,30 @@ const ClientDashboard: React.FC = () => {
     let pending = 0;
     const hiredEditors: any[] = [];
 
+    // Calculate from Job Applications
     jobs.forEach(job => {
       job.applications?.forEach(app => {
         if (app.status === 'HIRED') {
           hired++;
-          hiredEditors.push({ ...app.editor, jobTitle: job.title });
+          hiredEditors.push({ ...app.editor, jobTitle: job.title, source: 'Application' });
         } else if (app.status === 'NOT_HIRED') {
           notHired++;
         } else {
           pending++;
         }
       });
+    });
+
+    // Calculate from Direct Requests
+    directRequests.forEach(req => {
+      if (req.status === 'HIRED') {
+        hired++;
+        hiredEditors.push({ ...req.editor, jobTitle: 'Direct Hire', source: 'Direct Request' });
+      } else if (req.status === 'NOT_HIRED') {
+        notHired++;
+      } else {
+        pending++;
+      }
     });
 
     return {
@@ -155,7 +173,7 @@ const ClientDashboard: React.FC = () => {
       ].filter(d => d.value > 0),
       hiredEditors
     };
-  }, [jobs]);
+  }, [jobs, directRequests]);
 
   if (isLoading) {
     return (

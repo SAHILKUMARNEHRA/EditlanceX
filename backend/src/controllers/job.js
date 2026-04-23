@@ -149,7 +149,19 @@ const getPostedJobs = async (req, res) => {
         _count: {
           select: { applications: true },
         },
+        applications: {
+          include: {
+            editor: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              }
+            }
+          }
+        }
       },
+      orderBy: { createdAt: 'desc' }
     });
 
     const formattedJobs = jobs.map(job => ({

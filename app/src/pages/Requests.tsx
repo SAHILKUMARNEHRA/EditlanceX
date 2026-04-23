@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import * as api from '@/services/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Bell, User, CheckCircle, XCircle, Briefcase, Clock } from 'lucide-react';
+import { Loader2, Bell, User, CheckCircle, XCircle, Briefcase, Clock, Mail, AlertTriangle, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 const Requests: React.FC = () => {
   const { user } = useAuth();
@@ -13,6 +14,23 @@ const Requests: React.FC = () => {
   const [jobApplications, setJobApplications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Modal states
+  const [selectedReq, setSelectedReq] = useState<any | null>(null);
+  const [reqType, setReqType] = useState<'direct' | 'application' | null>(null);
+  
+  const isFirstFetch = useRef(true);
+
+  // Sync selectedReq if data updates via polling
+  useEffect(() => {
+    if (selectedReq && reqType) {
+      const sourceArray = reqType === 'direct' ? directRequests : jobApplications;
+      const updatedReq = sourceArray.find(r => r.id === selectedReq.id);
+      if (updatedReq && updatedReq.status !== selectedReq.status) {
+        setSelectedReq(updatedReq);
+      }
+    }
+  }, [directRequests, jobApplications]);
 
   useEffect(() => {
     fetchRequests();
@@ -22,8 +40,7 @@ const Requests: React.FC = () => {
 
   const fetchRequests = async () => {
     try {
-      // Only set loading true on initial fetch to avoid flickering
-      if (directRequests.length === 0 && jobApplications.length === 0) {
+      if (isFirstFetch.current) {
         setIsLoading(true);
       }
       let data;
@@ -36,24 +53,60 @@ const Requests: React.FC = () => {
       setJobApplications(data.jobApplications || []);
     } catch (err: any) {
       console.error('Failed to fetch requests:', err);
-      // Only set error if we don't have existing data to show
-      if (directRequests.length === 0 && jobApplications.length === 0) {
+      if (isFirstFetch.current) {
         setError(err.message || 'Failed to fetch requests');
       }
     } finally {
-      setIsLoading(false);
+      if (isFirstFetch.current) {
+        setIsLoading(false);
+        isFirstFetch.current = false;
+      }
     }
   };
 
-  const handleRespond = async (id: string, status: 'HIRED' | 'NOT_HIRED') => {
+  const handleRespond = async (id: string, status: 'HIRED' | 'NOT_HIRED', type: 'direct' | 'application') => {
     try {
-      await api.respondToRequest(id, status);
-      setDirectRequests(directRequests.map(req => 
-        req.id === id ? { ...req, status } : req
-      ));
+      if (type === 'direct') {
+        await api.respondToRequest(id, status);
+        setDirectRequests(prev => prev.map(req => req.id === id ? { ...req, status } : req));
+        if (selectedReq?.id === id) setSelectedReq({ ...selectedReq, status });
+      } else {
+        await api.updateApplicationStatus(id, status);
+        setJobApplications(prev => prev.map(app => app.id === id ? { ...app, status } : app));
+        if (selectedReq?.id === id) setSelectedReq({ ...selectedReq, status });
+      }
     } catch (err: any) {
-      console.error('Failed to respond to request:', err);
+      console.error('Failed to respond:', err);
     }
+  };
+
+  const openModal = (req: any, type: 'direct' | 'application') => {
+    setSelectedReq(req);
+    setReqType(type);
+  };
+
+  const getContactEmail = () => {
+    if (!selectedReq) return null;
+    if (reqType === 'direct') {
+      return user?.role === 'client' ? selectedReq.editor?.email : selectedReq.client?.email;
+    } else {
+      return user?.role === 'client' ? selectedReq.editor?.email : selectedReq.job?.client?.email;
+    }
+  };
+
+  const getOtherName = () => {
+    if (!selectedReq) return '';
+    if (reqType === 'direct') {
+      return user?.role === 'client' ? selectedReq.editor?.name : selectedReq.client?.name;
+    } else {
+      return user?.role === 'client' ? selectedReq.editor?.name : selectedReq.job?.client?.name;
+    }
+  };
+
+  const renderStatusBadge = (status: string) => {
+    if (status === 'HIRED') return <Badge className="bg-green-500/20 text-green-400 border-none"><CheckCircle className="h-3 w-3 mr-1" /> Accepted</Badge>;
+    if (status === 'NOT_HIRED') return <Badge className="bg-red-500/20 text-red-400 border-none"><XCircle className="h-3 w-3 mr-1" /> Declined</Badge>;
+    return <Badge className="bg-yellow-500/20 text-yellow-500 border-none"><Clock className="h-3 w-3 mr-1" /> Pending</Badge>;
   };
 
   if (isLoading) {
@@ -109,7 +162,7 @@ const Requests: React.FC = () => {
               </Card>
             ) : (
               directRequests.map((req) => (
-                <Card key={req.id} className="bg-[#111] border-white/5 hover:border-white/10 hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden group">
+                <Card key={req.id} onClick={() => openModal(req, 'direct')} className="cursor-pointer bg-[#111] border-white/5 hover:border-white/10 hover:bg-white/[0.02] hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden group">
                   <CardContent className="p-0">
                     <div className="flex flex-col sm:flex-row">
                       <div className="p-6 flex-1 border-b sm:border-b-0 sm:border-r border-white/5">
@@ -122,9 +175,7 @@ const Requests: React.FC = () => {
                               <h3 className="font-bold text-xl text-white group-hover:text-rose-400 transition-colors">
                                 {user?.role === 'client' ? req.editor?.name : req.client?.name}
                               </h3>
-                              <Badge className="bg-white/5 text-gray-400 border-white/10 font-normal">
-                                {user?.role === 'client' ? 'Editor' : 'Client'}
-                              </Badge>
+                              {renderStatusBadge(req.status)}
                             </div>
                             <p className="text-gray-400">
                               {user?.role === 'client' ? 'You requested to hire this editor' : 'This client wants to hire you directly'}
@@ -136,36 +187,8 @@ const Requests: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                      
-                      <div className="p-6 bg-white/[0.02] flex items-center justify-center min-w-[200px]">
-                        {req.status === 'PENDING' ? (
-                          user?.role === 'editor' ? (
-                            <div className="flex flex-col gap-3 w-full">
-                              <Button onClick={() => handleRespond(req.id, 'HIRED')} className="w-full bg-green-600 hover:bg-green-700 text-white rounded-full font-semibold shadow-lg shadow-green-600/20">
-                                <CheckCircle className="h-4 w-4 mr-2" /> Accept
-                              </Button>
-                              <Button variant="outline" onClick={() => handleRespond(req.id, 'NOT_HIRED')} className="w-full border-white/10 text-gray-300 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 rounded-full font-semibold">
-                                <XCircle className="h-4 w-4 mr-2" /> Decline
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="text-center w-full">
-                              <div className="inline-flex items-center justify-center p-3 bg-yellow-500/10 rounded-full mb-3">
-                                <Clock className="h-6 w-6 text-yellow-500" />
-                              </div>
-                              <p className="font-semibold text-yellow-500">Pending Response</p>
-                            </div>
-                          )
-                        ) : (
-                          <div className="text-center w-full">
-                            <div className={`inline-flex items-center justify-center p-3 rounded-full mb-3 ${req.status === 'HIRED' ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
-                              {req.status === 'HIRED' ? <CheckCircle className="h-8 w-8 text-green-500" /> : <XCircle className="h-8 w-8 text-red-500" />}
-                            </div>
-                            <p className={`font-bold text-lg ${req.status === 'HIRED' ? 'text-green-500' : 'text-red-500'}`}>
-                              {req.status === 'HIRED' ? 'Accepted' : 'Declined'}
-                            </p>
-                          </div>
-                        )}
+                      <div className="p-6 flex items-center justify-center min-w-[150px] text-gray-500 group-hover:text-white transition-colors">
+                        <span className="flex items-center text-sm font-medium"><ExternalLink className="h-4 w-4 mr-2" /> View Details</span>
                       </div>
                     </div>
                   </CardContent>
@@ -185,7 +208,7 @@ const Requests: React.FC = () => {
               </Card>
             ) : (
               jobApplications.map((app) => (
-                <Card key={app.id} className="bg-[#111] border-white/5 hover:border-white/10 hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden group">
+                <Card key={app.id} onClick={() => openModal(app, 'application')} className="cursor-pointer bg-[#111] border-white/5 hover:border-white/10 hover:bg-white/[0.02] hover:shadow-xl transition-all duration-300 rounded-2xl overflow-hidden group">
                   <CardContent className="p-0">
                     <div className="flex flex-col sm:flex-row">
                       <div className="p-6 flex-1 border-b sm:border-b-0 sm:border-r border-white/5">
@@ -194,9 +217,12 @@ const Requests: React.FC = () => {
                             <Briefcase className="h-6 w-6 text-white" />
                           </div>
                           <div>
-                            <h3 className="font-bold text-xl text-white mb-1 group-hover:text-blue-400 transition-colors">
-                              {app.job?.title}
-                            </h3>
+                            <div className="flex items-center gap-3 mb-1">
+                              <h3 className="font-bold text-xl text-white group-hover:text-blue-400 transition-colors">
+                                {app.job?.title}
+                              </h3>
+                              {renderStatusBadge(app.status)}
+                            </div>
                             <p className="text-gray-400">
                               {user?.role === 'client' ? `Application from ` : `Applied to `}
                               <span className="font-semibold text-gray-300">{user?.role === 'client' ? app.editor?.name : app.job?.client?.name}</span>
@@ -208,27 +234,8 @@ const Requests: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                      
-                      <div className="p-6 bg-white/[0.02] flex items-center justify-center min-w-[200px]">
-                        <div className="text-center w-full">
-                          <div className={`inline-flex items-center justify-center p-3 rounded-full mb-3 ${
-                            app.status === 'HIRED' ? 'bg-green-500/10' : 
-                            app.status === 'NOT_HIRED' ? 'bg-red-500/10' : 
-                            'bg-yellow-500/10'
-                          }`}>
-                            {app.status === 'HIRED' ? <CheckCircle className="h-8 w-8 text-green-500" /> : 
-                             app.status === 'NOT_HIRED' ? <XCircle className="h-8 w-8 text-red-500" /> : 
-                             <Clock className="h-8 w-8 text-yellow-500" />}
-                          </div>
-                          <p className={`font-bold text-lg ${
-                            app.status === 'HIRED' ? 'text-green-500' : 
-                            app.status === 'NOT_HIRED' ? 'text-red-500' : 
-                            'text-yellow-500'
-                          }`}>
-                            {app.status === 'PENDING' ? 'Under Review' : 
-                             app.status === 'HIRED' ? 'Hired' : 'Declined'}
-                          </p>
-                        </div>
+                      <div className="p-6 flex items-center justify-center min-w-[150px] text-gray-500 group-hover:text-white transition-colors">
+                        <span className="flex items-center text-sm font-medium"><ExternalLink className="h-4 w-4 mr-2" /> View Details</span>
                       </div>
                     </div>
                   </CardContent>
@@ -237,6 +244,89 @@ const Requests: React.FC = () => {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* DETAILS MODAL */}
+        <Dialog open={!!selectedReq} onOpenChange={(open) => !open && setSelectedReq(null)}>
+          <DialogContent className="bg-[#111] text-white border-white/10 sm:max-w-md rounded-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                {reqType === 'direct' ? <User className="h-6 w-6 text-rose-500" /> : <Briefcase className="h-6 w-6 text-blue-500" />}
+                Request Details
+              </DialogTitle>
+              <DialogDescription className="text-gray-400">
+                {reqType === 'direct' ? 'Direct hiring request' : 'Job application'}
+              </DialogDescription>
+            </DialogHeader>
+
+            {selectedReq && (
+              <div className="mt-4 space-y-6">
+                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-gray-400 text-sm">Status</span>
+                    {renderStatusBadge(selectedReq.status)}
+                  </div>
+                  
+                  {reqType === 'application' && (
+                    <div className="mb-4">
+                      <span className="text-gray-400 text-sm block mb-1">Job Title</span>
+                      <span className="text-lg font-medium text-white">{selectedReq.job?.title}</span>
+                    </div>
+                  )}
+
+                  <div>
+                    <span className="text-gray-400 text-sm block mb-1">
+                      {user?.role === 'client' ? 'Editor Name' : 'Client Name'}
+                    </span>
+                    <span className="text-lg font-medium text-white">{getOtherName()}</span>
+                  </div>
+                  
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <span className="text-gray-400 text-sm block mb-1">Received On</span>
+                    <span className="text-white">{new Date(selectedReq.createdAt).toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Accept/Decline Buttons (Only if Pending and user has permission to respond) */}
+                {selectedReq.status === 'PENDING' && (
+                  (reqType === 'direct' && user?.role === 'editor') || 
+                  (reqType === 'application' && user?.role === 'client')
+                ) && (
+                  <div className="flex gap-3">
+                    <Button 
+                      onClick={() => handleRespond(selectedReq.id, 'HIRED', reqType)} 
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg shadow-green-600/20 py-6"
+                    >
+                      <CheckCircle className="h-5 w-5 mr-2" /> Accept
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => handleRespond(selectedReq.id, 'NOT_HIRED', reqType)} 
+                      className="flex-1 border-white/10 text-gray-300 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 rounded-xl py-6"
+                    >
+                      <XCircle className="h-5 w-5 mr-2" /> Decline
+                    </Button>
+                  </div>
+                )}
+
+                {/* Show Contact Info if HIRED */}
+                {selectedReq.status === 'HIRED' && (
+                  <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 p-5 rounded-xl">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Mail className="h-5 w-5 text-green-400" />
+                      <h4 className="font-semibold text-green-400">Contact Information</h4>
+                    </div>
+                    <p className="text-white font-medium text-lg mb-3 bg-black/30 p-3 rounded-lg">{getContactEmail()}</p>
+                    
+                    <div className="flex items-start gap-2 text-yellow-500/80 bg-yellow-500/10 p-3 rounded-lg text-sm">
+                      <AlertTriangle className="h-5 w-5 shrink-0" />
+                      <p>Save this contact details, it will not be displayed again.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

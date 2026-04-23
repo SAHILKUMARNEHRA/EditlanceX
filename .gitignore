@@ -1,5 +1,8 @@
 node_modules/
 .env
+
+# Interview prep files
+interview_prep/
 .DS_Store
 dist/
 build/
@@ -14,3 +17,4 @@ app/node_modules/
 backend/node_modules/
 app/dist/
 backend/dist/
+interview_prep/

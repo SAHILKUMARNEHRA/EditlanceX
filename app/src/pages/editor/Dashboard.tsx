@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Briefcase, CheckCircle, Clock, Calendar, ArrowRight, User } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { formatINRCompact } from '@/lib/utils';
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -152,16 +153,6 @@ const EditorDashboard: React.FC = () => {
     } finally {
       setApplying(false);
     }
-  };
-
-  const formatBudget = (budget: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 1,
-      notation: 'compact',
-      compactDisplay: 'short'
-    }).format(budget);
   };
 
   const formatDate = (dateString: string) => {
@@ -334,7 +325,7 @@ const EditorDashboard: React.FC = () => {
                         <div className="flex items-center justify-between mt-auto">
                           <span className="flex items-center text-green-400 font-semibold min-w-0 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">
                             <span className="truncate" title={job.budget.toString()}>
-                              {formatBudget(job.budget)}
+                              {formatINRCompact(job.budget)}
                             </span>
                           </span>
                           <Button 
@@ -390,7 +381,7 @@ const EditorDashboard: React.FC = () => {
                         <p className="text-sm text-gray-400 line-clamp-2 mb-4 leading-relaxed">{job.description}</p>
                         <div className="flex items-center justify-between">
                           <span className="flex items-center text-green-400 font-semibold bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">
-                            {formatBudget(job.budget)}
+                            {formatINRCompact(job.budget)}
                           </span>
                           <Button 
                             variant="ghost" 
@@ -439,7 +430,7 @@ const EditorDashboard: React.FC = () => {
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-400 font-medium uppercase tracking-wider mb-1">Budget</p>
-                <p className="font-bold text-xl text-green-400">{selectedJob && formatBudget(selectedJob.budget)}</p>
+                <p className="font-bold text-xl text-green-400">{selectedJob && formatINRCompact(selectedJob.budget)}</p>
               </div>
             </div>
 

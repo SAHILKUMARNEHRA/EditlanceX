@@ -1,5 +1,7 @@
 const prisma = require('../config/prisma');
 
+const MAX_BUDGET_INR = 10000000;
+
 const createJob = async (req, res) => {
   try {
     const { title, description, category, videoType, software, budget, deadline } = req.body;
@@ -13,6 +15,14 @@ const createJob = async (req, res) => {
       return res.status(400).json({ error: 'Please provide all required fields' });
     }
 
+    const budgetValue = Number(budget);
+    if (!Number.isFinite(budgetValue) || budgetValue <= 0) {
+      return res.status(400).json({ error: 'Invalid budget' });
+    }
+    if (budgetValue > MAX_BUDGET_INR) {
+      return res.status(400).json({ error: 'Max budget allowed is ₹1 Cr' });
+    }
+
     const job = await prisma.job.create({
       data: {
         title,
@@ -20,7 +30,7 @@ const createJob = async (req, res) => {
         category,
         videoType,
         software: Array.isArray(software) ? software : [],
-        budget: parseFloat(budget),
+        budget: budgetValue,
         deadline: new Date(deadline),
         createdBy,
       },

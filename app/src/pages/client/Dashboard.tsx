@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import * as api from '@/services/api';
+import { formatINRCompact } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -118,16 +119,6 @@ const ClientDashboard: React.FC = () => {
     } finally {
       setIsUpdatingStatus(false);
     }
-  };
-
-  const formatBudget = (budget: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 1,
-      notation: 'compact',
-      compactDisplay: 'short'
-    }).format(budget);
   };
 
   const activeJobs = jobs.filter(j => j.status === 'OPEN');
@@ -370,7 +361,7 @@ const ClientDashboard: React.FC = () => {
                         </div>
                         <div className="flex items-center text-gray-400">
                           <span className="flex items-center font-semibold text-green-400 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">
-                            {formatBudget(job.budget)}
+                            {formatINRCompact(job.budget)}
                           </span>
                         </div>
                       </div>
@@ -454,7 +445,7 @@ const ClientDashboard: React.FC = () => {
                 <p className="text-xs text-gray-500 uppercase font-semibold tracking-wider">Budget</p>
                 <p className="text-lg font-bold text-green-400 flex items-center">
                   <span className="truncate" title={selectedJob?.budget.toString()}>
-                    {selectedJob && formatBudget(selectedJob.budget)}
+                    {selectedJob && formatINRCompact(selectedJob.budget)}
                   </span>
                 </p>
               </div>

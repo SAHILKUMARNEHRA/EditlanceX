@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import * as api from '@/services/api';
+import { formatINRCompact } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Users, Briefcase, FileText, TrendingUp, Mail, ShieldAlert, Trash2, KeyRound, Eye } from 'lucide-react';
@@ -86,16 +87,6 @@ const AdminDashboard: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Failed to delete job');
     }
-  };
-
-  const formatBudget = (budget: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 1,
-      notation: 'compact',
-      compactDisplay: 'short'
-    }).format(budget);
   };
 
   if (!isAdmin) {
@@ -325,7 +316,7 @@ const AdminDashboard: React.FC = () => {
                           <TableCell className="text-gray-300">{j.clientName}</TableCell>
                           <TableCell>
                             <div className="flex items-center text-green-400 font-semibold bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20 w-max">
-                              {formatBudget(j.budget)}
+                              {formatINRCompact(j.budget)}
                             </div>
                           </TableCell>
                           <TableCell className="text-gray-300">{j.applicationsCount}</TableCell>
@@ -474,7 +465,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-400 font-medium uppercase tracking-wider mb-1">Budget</p>
-                <p className="font-bold text-xl text-green-400">{selectedJob && formatBudget(selectedJob.budget)}</p>
+                <p className="font-bold text-xl text-green-400">{selectedJob && formatINRCompact(selectedJob.budget)}</p>
               </div>
             </div>
 

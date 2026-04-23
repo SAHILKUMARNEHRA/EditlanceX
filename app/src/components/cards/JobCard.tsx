@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, DollarSign, User, CheckCircle } from 'lucide-react';
+import { formatINRCompact } from '@/lib/utils';
 
 interface JobCardProps {
   job: {
@@ -26,16 +27,6 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply, showApplyButton = true 
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  const formatBudget = (budget: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0,
-      notation: 'compact',
-      compactDisplay: 'short'
-    }).format(budget);
-  };
-
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <CardHeader className="pb-3">
@@ -57,7 +48,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onApply, showApplyButton = true 
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center text-gray-600">
             <DollarSign className="h-4 w-4 mr-1 text-green-600" />
-            <span className="font-medium">{formatBudget(job.budget)}</span>
+            <span className="font-medium">{formatINRCompact(job.budget)}</span>
           </div>
           <div className="flex items-center text-gray-600">
             <Calendar className="h-4 w-4 mr-1 text-blue-600" />

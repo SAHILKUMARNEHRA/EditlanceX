@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Loader2, Search, Calendar, User, CheckCircle, Filter, Briefcase } from 'lucide-react';
+import { formatINRCompact } from '@/lib/utils';
 
 interface Job {
   id: string;
@@ -144,16 +145,6 @@ const EditorJobs: React.FC = () => {
     }
   };
 
-  const formatBudget = (budget: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 1,
-      notation: 'compact',
-      compactDisplay: 'short'
-    }).format(budget);
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
@@ -270,7 +261,7 @@ const EditorJobs: React.FC = () => {
                         <div className="bg-white/5 p-3 rounded-xl border border-white/5">
                           <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider font-semibold">Budget</p>
                           <div className="flex items-center text-green-400 min-w-0">
-                            <span className="font-bold text-lg truncate" title={job.budget.toString()}>{formatBudget(job.budget)}</span>
+                            <span className="font-bold text-lg truncate" title={job.budget.toString()}>{formatINRCompact(job.budget)}</span>
                           </div>
                         </div>
                         <div className="bg-white/5 p-3 rounded-xl border border-white/5">
@@ -350,7 +341,7 @@ const EditorJobs: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-400 font-medium uppercase tracking-wider mb-1">Budget</p>
-                  <p className="font-bold text-xl text-green-400">{selectedJob && formatBudget(selectedJob.budget)}</p>
+                  <p className="font-bold text-xl text-green-400">{selectedJob && formatINRCompact(selectedJob.budget)}</p>
                 </div>
               </div>
 

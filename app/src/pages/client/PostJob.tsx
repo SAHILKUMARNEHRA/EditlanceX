@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as api from '@/services/api';
+import { MAX_BUDGET_INR } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,6 +44,14 @@ const PostJob: React.FC = () => {
   });
 
   const handleChange = (field: string, value: any) => {
+    if (field === 'budget') {
+      const digits = String(value ?? '').replace(/\D/g, '').slice(0, 8);
+      const n = digits ? Number(digits) : 0;
+      const clamped = n > MAX_BUDGET_INR ? String(MAX_BUDGET_INR) : digits;
+      setFormData((prev) => ({ ...prev, budget: clamped }));
+      setError('');
+      return;
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError('');
   };
@@ -68,7 +77,9 @@ const PostJob: React.FC = () => {
     if (!formData.category) { setError('Category is required'); return; }
     if (!formData.videoType) { setError('Video type is required'); return; }
     if (formData.software.length === 0) { setError('Please select at least one software'); return; }
-    if (!formData.budget || parseFloat(formData.budget) <= 0) { setError('Valid budget is required'); return; }
+    const budget = Number(formData.budget);
+    if (!Number.isFinite(budget) || budget <= 0) { setError('Valid budget is required'); return; }
+    if (budget > MAX_BUDGET_INR) { setError('Max budget allowed is ₹1 Cr'); return; }
     if (!formData.deadline) { setError('Deadline is required'); return; }
 
     setIsSubmitting(true);
@@ -81,7 +92,7 @@ const PostJob: React.FC = () => {
         category: formData.category,
         videoType: formData.videoType,
         software: formData.software,
-        budget: parseFloat(formData.budget),
+        budget,
         deadline: formData.deadline,
       });
       setIsSuccess(true);
@@ -253,6 +264,7 @@ const PostJob: React.FC = () => {
                     id="budget"
                     type="number"
                     min="1"
+                    max={MAX_BUDGET_INR}
                     placeholder="e.g., 5000"
                     value={formData.budget}
                     onChange={(e) => handleChange('budget', e.target.value)}

@@ -21,6 +21,7 @@ import EditorListing from '@/pages/client/EditorListing';
 // Admin Pages
 import AdminDashboard from '@/pages/AdminDashboard';
 import Requests from '@/pages/Requests';
+import EditorProfileView from '@/pages/EditorProfileView';
 
 import { useAuth } from '@/context/AuthContext';
 
@@ -82,6 +83,20 @@ function App() {
               <ProtectedRoute allowedRoles={['editor']}>
                 <Layout>
                   <EditorProfile />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Public editor profile view (clients view hired editors).
+              Placed after the static /editor/* routes; React Router matches
+              those static paths before this dynamic :id route. */}
+          <Route
+            path="/editor/:id"
+            element={
+              <ProtectedRoute allowedRoles={['client', 'editor', 'admin']}>
+                <Layout>
+                  <EditorProfileView />
                 </Layout>
               </ProtectedRoute>
             }

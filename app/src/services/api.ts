@@ -132,6 +132,10 @@ export const getEditors = async () => {
   return fetchWithAuth('/editors');
 };
 
+export const getEditorById = async (id: string) => {
+  return fetchWithAuth(`/editors/${id}`);
+};
+
 export const getEditorProfile = async () => {
   return fetchWithAuth('/editors/profile');
 };

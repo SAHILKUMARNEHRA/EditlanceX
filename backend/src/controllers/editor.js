@@ -104,4 +104,36 @@ const getProfile = async (req, res) => {
   }
 };
 
-module.exports = { getEditors, updateProfile, getProfile };
+const getEditorById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: { editorProfile: true },
+    });
+
+    if (!user || user.role !== 'editor') {
+      return res.status(404).json({ error: 'Editor not found' });
+    }
+
+    const editor = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone || '',
+      bio: user.editorProfile?.bio || '',
+      skills: user.editorProfile?.skills || [],
+      experience: user.editorProfile?.experience || '',
+      portfolioLinks: user.editorProfile?.portfolioLinks || [],
+      availability: user.editorProfile?.availability || '',
+      experienceDetails: user.editorProfile?.experienceDetails || '',
+    };
+
+    res.json({ editor });
+  } catch (error) {
+    console.error('Error fetching editor:', error);
+    res.status(500).json({ error: 'Error fetching editor' });
+  }
+};
+
+module.exports = { getEditors, updateProfile, getProfile, getEditorById };

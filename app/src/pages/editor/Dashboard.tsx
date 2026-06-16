@@ -105,6 +105,16 @@ const EditorDashboard: React.FC = () => {
 
   const isExpired = (deadline: string) => new Date(deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
 
+  // Open the details modal instantly using the job we already loaded
+  // (getJobs / getAppliedJobs return every field the modal shows), so the
+  // click no longer waits on a network round-trip.
+  const openJobDetails = (job: Job) => {
+    setSelectedJob(job);
+    setDetailsDialogOpen(true);
+  };
+
+  // Used only for the ?jobId= deep link (e.g. from a notification), where we
+  // arrive with just an id and have no local job object to show.
   const fetchJobDetails = async (jobId: string) => {
     try {
       const data = await api.getJobById(jobId);
@@ -332,7 +342,7 @@ const EditorDashboard: React.FC = () => {
                             variant="ghost" 
                             size="sm" 
                             className="text-gray-400 hover:text-white hover:bg-white/10 shrink-0 rounded-full"
-                            onClick={() => fetchJobDetails(job.id)}
+                            onClick={() => openJobDetails(job)}
                           >
                             Details
                           </Button>
@@ -387,7 +397,7 @@ const EditorDashboard: React.FC = () => {
                             variant="ghost" 
                             size="sm" 
                             className="text-gray-400 hover:text-white hover:bg-white/10 rounded-full"
-                            onClick={() => fetchJobDetails(job.id)}
+                            onClick={() => openJobDetails(job)}
                           >
                             Details
                           </Button>

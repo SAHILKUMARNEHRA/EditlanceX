@@ -41,7 +41,6 @@ const EditorJobs: React.FC = () => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [applying, setApplying] = useState(false);
   const [profileComplete, setProfileComplete] = useState(true);
-  const [isFetchingDetails, setIsFetchingDetails] = useState(false);
 
   const categories = ['All', 'YouTube', 'Corporate', 'Wedding', 'Social Media', 'Music Video', 'Commercial', 'Other'];
 
@@ -103,17 +102,12 @@ const EditorJobs: React.FC = () => {
 
   const isExpired = (deadline: string) => new Date(deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
 
-  const fetchJobDetails = async (jobId: string) => {
-    try {
-      setIsFetchingDetails(true);
-      const data = await api.getJobById(jobId);
-      setSelectedJob(data);
-      setDetailsDialogOpen(true);
-    } catch (err: any) {
-      console.error('Error fetching job details:', err);
-    } finally {
-      setIsFetchingDetails(false);
-    }
+  // Open the details modal instantly using the data we already loaded from getJobs().
+  // For editors, getJobById returns no extra fields (the applications list is hidden),
+  // so a blocking network call here only made the modal hang for several seconds.
+  const openJobDetails = (job: Job) => {
+    setSelectedJob(job);
+    setDetailsDialogOpen(true);
   };
 
   const handleApply = async () => {
@@ -276,14 +270,10 @@ const EditorJobs: React.FC = () => {
                       <div className="flex gap-3 items-center flex-wrap mt-auto">
                         <Button
                           variant="outline"
-                          onClick={() => fetchJobDetails(job.id)}
+                          onClick={() => openJobDetails(job)}
                           className="flex-1 border-white/10 text-white hover:bg-white/10 rounded-full"
                         >
-                          {isFetchingDetails && selectedJob?.id === job.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            'View Details'
-                          )}
+                          View Details
                         </Button>
                         <Button
                           onClick={() => {

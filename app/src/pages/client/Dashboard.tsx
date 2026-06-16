@@ -68,11 +68,15 @@ const ClientDashboard: React.FC = () => {
     }
   };
 
-  const fetchJobDetails = async (jobId: string) => {
+  const fetchJobDetails = async (job: Job) => {
+    // Open the modal instantly using the data we already loaded from getPostedJobs(),
+    // then enrich it in the background with the fuller applicant info (phone, profile,
+    // contact status). This avoids the modal hanging on a network round-trip.
+    setSelectedJob(job);
+    setViewDialogOpen(true);
     try {
-      const data = await api.getJobById(jobId);
+      const data = await api.getJobById(job.id);
       setSelectedJob(data);
-      setViewDialogOpen(true);
     } catch (err: any) {
       console.error('Error fetching job details:', err);
     }
@@ -369,7 +373,7 @@ const ClientDashboard: React.FC = () => {
                     
                     <div className="bg-white/5 p-6 flex flex-row md:flex-col justify-center items-center gap-3 border-t md:border-t-0 md:border-l border-white/5">
                       <Button 
-                        onClick={() => fetchJobDetails(job.id)}
+                        onClick={() => fetchJobDetails(job)}
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full h-10"
                       >
                         <Eye className="h-4 w-4 mr-2" />

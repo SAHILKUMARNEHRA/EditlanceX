@@ -85,7 +85,7 @@ const EditorDashboard: React.FC = () => {
         api.getAppliedJobs(),
       ]);
       
-      let jobs = allJobsData.jobs || [];
+      const jobs = allJobsData.jobs || [];
       jobs.sort((a: Job, b: Job) => {
         const isAExpired = new Date(a.deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
         const isBExpired = new Date(b.deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
@@ -132,7 +132,7 @@ const EditorDashboard: React.FC = () => {
       await api.applyJob(selectedJob.id);
       // fetchJobs() can happen silently in the background without blocking the UI
       api.getJobs().then(data => {
-        let jobs = data.jobs || [];
+        const jobs = data.jobs || [];
         jobs.sort((a: Job, b: Job) => {
           const isAExpired = new Date(a.deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
           const isBExpired = new Date(b.deadline).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
